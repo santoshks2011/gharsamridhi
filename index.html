@@ -11,8 +11,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="GharSamridhi">
-  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22GharSamridhi%22%2C%22short_name%22%3A%22GharSamridhi%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230D2B1A%22%2C%22theme_color%22%3A%22%230D2B1A%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%2527010010010010010010010010010010010%2527%253E%253Crect%2520fill%3D%2527%25230D2B1A%2527%2520width%3D%2527100%2527%2520height%3D%2527100%2527%2F%253E%253Ctext%2520y%3D%252770%2527%2520x%3D%252750%2527%2520text-anchor%3D%2527middle%2527%2520font-size%3D%252760%2527%253E%25F0%259F%258C%25B1%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
-
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-startup-image" href="icon-512.png">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GharSamridhi">
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1797,6 +1800,15 @@ loadSavedConfig();
 </script>
 
 <script>
+// ── Service Worker Registration (enables offline + installability) ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+
 // ── PWA Install Prompt ────────────────────────────────────────
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -1804,6 +1816,16 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
   document.getElementById('installBanner').style.display = 'flex';
 });
+
+// Show iOS install instructions on iPhone/iPad (Safari doesn't support beforeinstallprompt)
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+if (isIOS && !isInStandaloneMode) {
+  // Show after 3 seconds so user can see the app first
+  setTimeout(() => {
+    document.getElementById('iosBanner').style.display = 'block';
+  }, 3000);
+}
 function installApp() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
@@ -1818,13 +1840,35 @@ window.addEventListener('appinstalled', () => {
 });
 </script>
 
+<!-- Android install banner (auto-shown) -->
 <div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0D2B1A;color:#fff;padding:14px 20px;align-items:center;justify-content:space-between;z-index:998;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,0.3)">
-  <div>
-    <div style="font-weight:700;font-size:0.9rem">📲 Install GharSamridhi</div>
-    <div style="font-size:0.75rem;color:#81C784;margin-top:2px">Add to home screen for quick access</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:2rem">🌱</span>
+    <div>
+      <div style="font-weight:700;font-size:0.92rem">Install GharSamridhi</div>
+      <div style="font-size:0.74rem;color:#81C784;margin-top:1px">Add to home screen — works like a real app</div>
+    </div>
   </div>
-  <button onclick="installApp()" style="background:#2E7D52;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:700;cursor:pointer;white-space:nowrap">Install App</button>
-  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#81C784;font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button onclick="installApp()" style="background:#2E7D52;color:#fff;border:none;padding:9px 16px;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;font-size:0.85rem;white-space:nowrap">📲 Install</button>
+    <button onclick="document.getElementById('installBanner').style.display='none'" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:0.85rem">✕</button>
+  </div>
+</div>
+
+<!-- iOS install instructions banner (shown on iPhone/iPad) -->
+<div id="iosBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0D2B1A;color:#fff;padding:14px 18px;z-index:998;box-shadow:0 -4px 20px rgba(0,0,0,0.3)">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+    <div>
+      <div style="font-weight:700;font-size:0.92rem;margin-bottom:6px">📲 Install on iPhone / iPad</div>
+      <div style="font-size:0.8rem;color:#81C784;line-height:1.6">
+        1. Tap the <strong style="color:#fff">Share</strong> button 
+           <span style="background:#2E7D52;padding:2px 8px;border-radius:5px;font-size:0.75rem">⬆ Share</span><br>
+        2. Scroll down → tap <strong style="color:#fff">"Add to Home Screen"</strong><br>
+        3. Tap <strong style="color:#fff">"Add"</strong> → GharSamridhi appears on your home screen ✅
+      </div>
+    </div>
+    <button onclick="document.getElementById('iosBanner').style.display='none'" style="background:rgba(255,255,255,0.1);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:1rem;flex-shrink:0">✕</button>
+  </div>
 </div>
 </body>
 </html>
