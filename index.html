@@ -1717,8 +1717,9 @@ function quickAttach(input) {
     }
 
     document.getElementById('quickThumbName').textContent = file.name;
-    document.getElementById('quickProofName').textContent = '✅ ' + file.name;
-    document.getElementById('quickProofThumb').style.display = 'flex';
+    // quickProofName element optional — skip if not present
+    const qpt = document.getElementById('quickProofThumb');
+    if(qpt) qpt.style.display = 'block';
     toast('📎 ' + file.name + ' attached!');
   };
   reader.readAsDataURL(file);
@@ -1729,8 +1730,10 @@ function clearQuickProof() {
   if (inp) inp.value = '';
   quickProofBase64 = null;
   quickProofName   = '';
-  document.getElementById('quickProofThumb').style.display = 'none';
-  document.getElementById('quickProofName').textContent = 'Optional — JPG, PNG, PDF';
+  const thumb = document.getElementById('quickProofThumb');
+  if (thumb) thumb.style.display = 'none';
+  const nameEl = document.getElementById('quickProofName');
+  if (nameEl) nameEl.textContent = 'Optional — JPG, PNG, PDF';
 }
 
 
