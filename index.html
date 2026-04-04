@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>GharSamridhi — Home Prosperity Tracker</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0D2B1A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GharSamridhi">
+  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22GharSamridhi%22%2C%22short_name%22%3A%22GharSamridhi%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230D2B1A%22%2C%22theme_color%22%3A%22%230D2B1A%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%2527010010010010010010010010010010010%2527%253E%253Crect%2520fill%3D%2527%25230D2B1A%2527%2520width%3D%2527100%2527%2520height%3D%2527100%2527%2F%253E%253Ctext%2520y%3D%252770%2527%2520x%3D%252750%2527%2520text-anchor%3D%2527middle%2527%2520font-size%3D%252760%2527%253E%25F0%259F%258C%25B1%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #2E7D52;
+    --deep: #0D2B1A;
+    --cream: #F1FAF4;
+    --gold: #81C784;
+    --green: #2E7D52;
+    --red: #C0392B;
+    --muted: #5A7A65;
+    --card: #FFFFFF;
+    --border: #D6EFE0;
+    --shadow: 0 4px 24px rgba(26,10,0,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'DM Sans',sans-serif;
+    background:var(--cream);
+    color:var(--deep);
+    min-height:100vh;
+    /* Bottom safe area for iPhone home indicator */
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  /* ── SETUP OVERLAY ── */
+  #setupOverlay {
+    position:fixed; inset:0; background:rgba(13,43,26,0.95);
+    display:flex; align-items:center; justify-content:center;
+    z-index:1000; padding:20px;
+  }
+  .setup-box {
+    background:#fff; border-radius:20px; padding:36px; max-width:520px; width:100%;
+    box-shadow:0 24px 80px rgba(0,0,0,0.4);
+  }
+  .setup-box h2 { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--deep); }
+  .setup-box h2 span { color:var(--saffron); }
+  .setup-step {
+    background:var(--cream); border-radius:12px; padding:16px 18px;
+    margin:14px 0; border-left:4px solid var(--saffron); font-size:0.88rem; line-height:1.7;
+  }
+  .setup-step strong { color:var(--deep); }
+  .setup-step code {
+    background:#E8F5E9; color:#2E7D52; padding:2px 8px;
+    border-radius:5px; font-family:monospace; font-size:0.85rem;
+  }
+  .setup-input {
+    width:100%; border:2px solid var(--border); border-radius:10px;
+    padding:12px 16px; font-family:'DM Sans',sans-serif; font-size:0.9rem;
+    color:var(--deep); margin-top:10px; transition:border-color 0.2s;
+  }
+  .setup-input:focus { outline:none; border-color:var(--saffron); }
+  .btn-connect {
+    width:100%; background:var(--saffron); color:#fff; border:none;
+    padding:14px; border-radius:12px; font-family:'DM Sans',sans-serif;
+    font-weight:700; font-size:1rem; cursor:pointer; margin-top:16px;
+    transition:all 0.2s;
+  }
+  .btn-connect:hover { background:#e55a25; transform:translateY(-1px); }
+  .name-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
+  .setup-label { font-size:0.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px; }
+
+  /* ── HEADER ── */
+  header {
+    background:linear-gradient(135deg,#0D2B1A,#1B4332); padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 20px rgba(0,0,0,0.3);
+    flex-wrap:wrap; gap:8px;
+    /* Safe area for iPhone notch */
+    padding-top:max(14px, env(safe-area-inset-top));
+    padding-left:max(24px, env(safe-area-inset-left));
+    padding-right:max(24px, env(safe-area-inset-right));
+  }
+  header h1 { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.5rem; }
+  header h1 span { color:var(--saffron); }
+  .header-right { display:flex; gap:10px; align-items:center; }
+  .user-pill {
+    background:rgba(255,255,255,0.12); color:#fff; padding:5px 14px;
+    border-radius:20px; font-size:0.8rem; font-weight:600;
+  }
+  .month-selector {
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+    color:#fff; padding:6px 12px; border-radius:8px;
+    font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer;
+  }
+  .month-selector:focus { outline:none; }
+  .btn-sm {
+    background:var(--saffron); color:#fff; border:none; padding:7px 14px;
+    border-radius:8px; font-family:'DM Sans',sans-serif; font-weight:600;
+    cursor:pointer; font-size:0.8rem; transition:all 0.2s; white-space:nowrap;
+  }
+  .btn-sm:hover { background:#e55a25; }
+  .btn-sm.green { background:var(--green); }
+  .btn-sm.green:hover { background:#246644; }
+
+  /* ── SYNC STATUS ── */
+  .sync-bar {
+    background:#fff; border-bottom:2px solid var(--border);
+    padding:8px 24px; display:flex; align-items:center; gap:10px; font-size:0.8rem;
+  }
+  .sync-dot { width:8px; height:8px; border-radius:50%; background:#ccc; flex-shrink:0; }
+  .sync-dot.ok { background:var(--green); }
+  .sync-dot.err { background:var(--red); }
+  .sync-dot.loading { background:var(--gold); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .sync-msg { color:var(--muted); }
+
+  /* ── TABS ── */
+  .tabs {
+    display:flex; padding:16px 24px 0;
+    border-bottom:2px solid var(--border); background:var(--cream);
+    overflow-x:auto;
+  }
+  .tab {
+    padding:10px 18px; cursor:pointer; font-weight:600; font-size:0.88rem;
+    color:var(--muted); border-bottom:3px solid transparent; margin-bottom:-2px;
+    transition:all 0.2s; white-space:nowrap;
+  }
+  .tab.active { color:var(--saffron); border-bottom-color:var(--saffron); }
+  .tab:hover:not(.active) { color:var(--deep); }
+  .tab-content { display:none; padding:20px 24px; }
+  .tab-content.active { display:block; }
+
+  /* ── SUMMARY ── */
+  .summary-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+  .summary-card {
+    background:var(--card); border-radius:14px; padding:18px;
+    box-shadow:var(--shadow); border-left:4px solid var(--gold);
+  }
+  .summary-card.red { border-left-color:var(--red); }
+  .summary-card.green { border-left-color:var(--green); }
+  .summary-card.saffron { border-left-color:var(--saffron); }
+  .summary-card label { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:600; }
+  .summary-card .amount { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; margin-top:4px; }
+  .summary-card .sub { font-size:0.75rem; color:var(--muted); margin-top:2px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family:'Playfair Display',serif; font-size:1.2rem;
+    color:var(--deep); margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── CATEGORY GRID ── */
+  .category-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-bottom:24px; }
+  .cat-card {
+    background:var(--card); border-radius:12px; padding:14px 16px;
+    box-shadow:var(--shadow); display:flex; align-items:center; gap:12px;
+    transition:transform 0.15s;
+  }
+  .cat-card:hover { transform:translateY(-2px); }
+  .cat-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+  .cat-info { flex:1; min-width:0; }
+  .cat-name { font-weight:600; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cat-budget { font-size:0.72rem; color:var(--muted); margin-top:1px; }
+  .cat-spent { font-size:0.9rem; font-weight:700; color:var(--deep); margin-top:4px; }
+  .cat-bar-wrap { margin-top:6px; height:4px; background:var(--border); border-radius:10px; overflow:hidden; }
+  .cat-bar { height:100%; border-radius:10px; transition:width 0.4s; }
+
+  /* ── FORM ── */
+  .add-panel { background:var(--card); border-radius:16px; padding:22px; box-shadow:var(--shadow); margin-bottom:22px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .form-group { display:flex; flex-direction:column; gap:4px; }
+  .form-group label { font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .form-control {
+    border:1.5px solid var(--border); border-radius:10px; padding:10px 13px;
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--deep);
+    background:var(--cream); transition:border-color 0.2s; width:100%;
+  }
+  .form-control:focus { outline:none; border-color:var(--saffron); background:#fff; }
+  .btn-add {
+    background:var(--green); color:#fff; border:none; padding:10px 20px;
+    border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:700;
+    cursor:pointer; font-size:0.9rem; transition:all 0.2s; width:100%; margin-top:12px;
+  }
+  .btn-add:hover { background:#246644; }
+  .btn-add:disabled { background:#ccc; cursor:not-allowed; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { text-align:left; font-size:0.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; padding:10px 14px; border-bottom:2px solid var(--border); background:var(--cream); }
+  tbody tr { border-bottom:1px solid var(--border); transition:background 0.15s; }
+  tbody tr:hover { background:#F1FAF4; }
+  tbody td { padding:11px 14px; font-size:0.85rem; }
+  .badge { display:inline-block; padding:3px 9px; border-radius:20px; font-size:0.7rem; font-weight:600; }
+  .btn-del { background:none; border:none; cursor:pointer; color:#ccc; font-size:1rem; padding:3px 8px; border-radius:6px; transition:all 0.15s; }
+  .btn-del:hover { color:var(--red); background:#FFF0EE; }
+  .who-pill { font-size:0.7rem; color:var(--muted); background:var(--cream); padding:2px 8px; border-radius:10px; }
+
+  /* ── BAR CHART ── */
+  .chart-container { background:var(--card); border-radius:14px; padding:22px; box-shadow:var(--shadow); margin-bottom:18px; }
+  .chart-title { font-family:'Playfair Display',serif; font-size:1.05rem; margin-bottom:16px; }
+  .bar-chart { display:flex; flex-direction:column; gap:8px; }
+  .bar-row { display:flex; align-items:center; gap:10px; }
+  .bar-label { width:150px; font-size:0.78rem; color:var(--deep); flex-shrink:0; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar-track { flex:1; height:20px; background:var(--border); border-radius:5px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:5px; display:flex; align-items:center; padding-left:8px; font-size:0.7rem; color:#fff; font-weight:600; transition:width 0.5s; white-space:nowrap; }
+  .bar-val { width:80px; font-size:0.78rem; color:var(--muted); text-align:right; flex-shrink:0; }
+
+  /* ── BUDGET ── */
+  .budget-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+  .budget-card { background:var(--card); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
+  .budget-card .bcat { font-weight:600; font-size:0.88rem; display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .budget-input { width:100%; border:1.5px solid var(--border); border-radius:8px; padding:8px 11px; font-family:'DM Sans',sans-serif; font-size:0.88rem; background:var(--cream); color:var(--deep); transition:border-color 0.2s; }
+  .budget-input:focus { outline:none; border-color:var(--gold); background:#fff; }
+
+  /* ── AI PANEL ── */
+  .ai-panel { background:linear-gradient(135deg,#0D2B1A,#1B4332); border-radius:14px; padding:22px; margin-bottom:20px; color:#D1FAE5; }
+  .ai-panel h3 { font-family:'Playfair Display',serif; font-size:1.1rem; color:#81C784; margin-bottom:12px; }
+  .ai-tip { background:rgba(255,255,255,0.06); border-left:3px solid var(--saffron); padding:10px 13px; border-radius:0 8px 8px 0; font-size:0.83rem; line-height:1.5; margin-bottom:8px; }
+  .ai-tip strong { color:var(--saffron); }
+
+  /* ── LOADING ── */
+  .loading-spinner { text-align:center; padding:40px; color:var(--muted); font-size:0.9rem; }
+
+  /* ── TOAST ── */
+  .toast {
+    position:fixed; bottom:24px; right:24px;
+    background:#0D2B1A; color:#81C784; padding:11px 20px;
+    border-radius:10px; font-size:0.85rem; font-weight:600;
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+
+  /* ── FAMILY ACTIVITY ── */
+  .activity-feed { display:flex; flex-direction:column; gap:10px; }
+  .activity-item {
+    background:var(--card); border-radius:12px; padding:14px 16px;
+    box-shadow:var(--shadow); display:flex; align-items:center; gap:14px;
+  }
+  .activity-avatar {
+    width:38px; height:38px; border-radius:50%; background:var(--saffron);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1rem; flex-shrink:0;
+  }
+  .activity-detail { flex:1; }
+  .activity-detail strong { font-size:0.88rem; }
+  .activity-detail .meta { font-size:0.75rem; color:var(--muted); margin-top:2px; }
+  .activity-amt { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--red); }
+
+  /* ── Mobile — all phones (up to 768px) ── */
+  @media(max-width:768px) {
+
+    /* Header — compact, no overflow */
+    header { padding:10px 12px; gap:6px; flex-wrap:wrap; }
+    header h1 { font-size:1.2rem; }
+    .header-right { gap:6px; flex-wrap:wrap; }
+    .user-pill { font-size:0.72rem; padding:4px 10px; }
+    .month-selector { font-size:0.75rem; padding:5px 8px; max-width:130px; }
+    .btn-sm { font-size:0.72rem; padding:5px 10px; }
+
+    /* Sync bar */
+    .sync-bar { padding:6px 12px; font-size:0.75rem; }
+
+    /* Tabs — scrollable horizontal row */
+    .tabs {
+      padding:10px 12px 0;
+      gap:0;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar { display:none; }
+    .tab { padding:8px 12px; font-size:0.78rem; white-space:nowrap; }
+
+    /* Tab content padding */
+    .tab-content { padding:12px; }
+
+    /* Summary cards — 2 column on phone */
+    .summary-row { grid-template-columns:1fr 1fr; gap:10px; }
+    .summary-card { padding:14px; }
+    .summary-card .amount { font-size:1.3rem; }
+    .summary-card label { font-size:0.65rem; }
+    .summary-card .sub { font-size:0.7rem; }
+
+    /* Category grid — single column on phone */
+    .category-grid { grid-template-columns:1fr; gap:10px; }
+    .cat-card { padding:12px 14px; }
+
+    /* Add expense form — single column */
+    .form-row { grid-template-columns:1fr; gap:10px; }
+    .form-control { font-size:0.9rem; padding:10px 12px; }
+    .btn-add { padding:13px; font-size:0.95rem; }
+    .add-panel { padding:16px; }
+
+    /* Tables — scrollable */
+    .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    table { min-width:500px; }
+    tbody td { padding:10px 12px; font-size:0.8rem; }
+    thead th { padding:8px 12px; font-size:0.68rem; }
+
+    /* Bar chart */
+    .bar-label { width:80px; font-size:0.72rem; }
+    .bar-val { width:65px; font-size:0.72rem; }
+    .chart-container { padding:16px; }
+
+    /* Budget grid — single column */
+    .budget-grid { grid-template-columns:1fr; }
+
+    /* Section title */
+    .section-title { font-size:1rem; }
+
+    /* AI panel */
+    .ai-panel { padding:16px; }
+    .ai-tip { font-size:0.8rem; }
+
+    /* Activity feed */
+    .activity-item { padding:12px; gap:10px; }
+    .activity-avatar { width:32px; height:32px; font-size:0.85rem; }
+    .activity-amt { font-size:0.95rem; }
+
+    /* Install banner */
+    #installBanner { padding:10px 14px; }
+
+    /* Setup box */
+    .setup-box { padding:24px 20px; }
+    .setup-box h2 { font-size:1.5rem; }
+    .btn-connect { padding:13px; font-size:0.95rem; }
+  }
+
+  /* ── Small phones (up to 380px — iPhone SE, older Androids) ── */
+  @media(max-width:380px) {
+    header h1 { font-size:1rem; }
+    .summary-row { grid-template-columns:1fr; }
+    .tab { font-size:0.72rem; padding:8px 10px; }
+    .summary-card .amount { font-size:1.15rem; }
+  }
+
+  /* ── Search box mobile ── */
+  @media(max-width:768px) {
+    #searchBox { width:100% !important; }
+    .add-panel .form-row { grid-template-columns:1fr !important; }
+  }
+
+  /* ── Tablet (768px–1024px) ── */
+  @media(min-width:768px) and (max-width:1024px) {
+    .category-grid { grid-template-columns:repeat(2,1fr); }
+    .summary-row { grid-template-columns:repeat(2,1fr); }
+    .budget-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP OVERLAY ══════════════════════════════════════════ -->
+<div id="setupOverlay">
+  <div class="setup-box">
+    <h2>Ghar<span>Samridhi</span> 🌱</h2>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:6px;margin-bottom:20px">Track · Save · Grow — Your Family Prosperity Hub</p>
+
+    <div class="setup-step">
+      <strong>Welcome! 👋</strong> Enter your name below to start.<br>
+      <span style="color:var(--muted);font-size:0.82rem">Your expenses sync privately to your family's Google Sheet.</span>
+    </div>
+
+    <!-- Hidden fields — pre-filled, not shown to user -->
+    <input type="hidden" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbxeSB838hpuekAe1lDlww0HA5oRdQSEmFqTXWaqMpVyrRjIvRRyK_7mfbPGNARYF_Yy/exec">
+    <input type="hidden" id="familyPin" value="">
+
+    <div style="margin-top:16px">
+      <span class="setup-label">Your Name</span>
+      <input class="setup-input" id="userName" type="text" placeholder="e.g. Santosh, Priya, Rahul...">
+    </div>
+
+    <button class="btn-connect" onclick="connectToSheets()">🌱 Start GharSamridhi</button>
+
+    <div style="margin-top:16px;padding:12px;background:#F0FFF4;border-radius:10px;font-size:0.78rem;color:#1B4332;line-height:1.6">
+      🔒 <strong>100% Private</strong> — Your data stays in your own Google Sheet. No one else can access it.
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ═══════════════════════════════════════════════ -->
+<header>
+  <h1>Ghar<span>Samridhi</span> 🌱 🏠</h1>
+  <div class="header-right">
+    <span class="user-pill" id="userPill">👤 —</span>
+    <select class="month-selector" id="monthSel" onchange="changeMonth()"></select>
+    <button class="btn-sm" onclick="syncData()">🔄 Sync</button>
+    <button class="btn-sm" onclick="exportCSV()">⬇ Export</button>
+  </div>
+</header>
+
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span class="sync-msg" id="syncMsg">Not connected</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+  <div class="tab" onclick="switchTab('add')">➕ Add Expense</div>
+  <div class="tab" onclick="switchTab('monthly')">📋 Monthly View</div>
+  <div class="tab" onclick="switchTab('family')">👨‍👩‍👧 Family Activity</div>
+  <div class="tab" onclick="switchTab('budget')">🎯 Budgets</div>
+  <div class="tab" onclick="switchTab('insights')">💡 Insights</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="tab-content active" id="tab-dashboard">
+  <div class="summary-row" id="summaryRow">
+    <div class="loading-spinner">Loading...</div>
+  </div>
+  <div class="section-title">This Month's Categories</div>
+  <div class="category-grid" id="catGrid"></div>
+</div>
+
+<!-- ADD EXPENSE -->
+<div class="tab-content" id="tab-add">
+  <div class="add-panel">
+    <div class="section-title" style="margin-bottom:18px">Add New Expense</div>
+
+    <!-- ══ AI SCANNER — collapsible, tap header to expand ══ -->
+    <div style="background:linear-gradient(135deg,#0D2B1A,#1B4332);border-radius:14px;padding:14px 16px;margin-bottom:18px;color:#D1FAE5">
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="toggleScanner()">
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;color:#81C784">🤖 AI Receipt Scanner <span style="font-size:0.72rem;font-weight:400;color:#6EE7B7">(tap to expand)</span></div>
+          <div style="font-size:0.72rem;color:#6EE7B7;margin-top:1px">Upload bill photo → AI reads & fills form automatically</div>
+        </div>
+        <span id="scannerChevron" style="color:#81C784;font-size:1rem;transition:transform 0.3s">▶</span>
+      </div>
+
+      <div id="scannerBody" style="display:none;margin-top:14px;border-top:1px solid rgba(255,255,255,0.1);padding-top:14px">
+        <!-- Mode buttons -->
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button onclick="setMode('ai')" id="btnModeAI"
+            style="background:#2E7D52;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
+            🤖 AI Auto-Fill
+          </button>
+          <button onclick="setMode('manual')" id="btnModeManual"
+            style="background:rgba(255,255,255,0.12);color:#D1FAE5;border:1px solid rgba(255,255,255,0.2);padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">
+            ✏️ Manual Fill
+          </button>
+        </div>
+
+        <!-- AI mode -->
+        <div id="modeAI">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <label for="receiptInput"
+              style="background:#2E7D52;color:#fff;padding:9px 16px;border-radius:10px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px">
+              📷 Upload Receipt for AI Scan
+            </label>
+            <span style="font-size:0.72rem;color:#6EE7B7">JPG · PNG · Any image of bill</span>
+          </div>
+          <input type="file" id="receiptInput" accept="image/*" style="display:none" onchange="scanReceipt(this)">
+          <div id="receiptPreview" style="display:none;background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;margin-top:10px">
+            <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+              <div id="proofThumb" style="width:68px;height:68px;border-radius:8px;border:2px solid #2E7D52;background:#1B4332;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;overflow:hidden"></div>
+              <div style="flex:1;min-width:150px">
+                <div id="scanStatus" style="font-size:0.85rem;font-weight:700;color:#81C784;margin-bottom:6px">🤖 Reading receipt...</div>
+                <div id="scanResult" style="font-size:0.76rem;color:#6EE7B7;line-height:1.7"></div>
+                <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                  <button id="btnApply" onclick="applyScannedData()" style="display:none;background:#2E7D52;color:#fff;border:none;padding:7px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.8rem;cursor:pointer">✅ Apply to Form</button>
+                  <button onclick="clearReceipt()" style="background:rgba(255,255,255,0.1);color:#D1FAE5;border:1px solid rgba(255,255,255,0.2);padding:7px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">✕ Clear</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual mode -->
+        <div id="modeManual" style="display:none">
+          <div style="font-size:0.8rem;color:#6EE7B7;margin-bottom:10px">Fill the form below and optionally attach proof.</div>
+          <label for="proofInput"
+            style="background:rgba(255,255,255,0.15);color:#D1FAE5;border:1px solid rgba(255,255,255,0.3);padding:9px 16px;border-radius:10px;font-weight:600;font-size:0.82rem;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px">
+            📎 Attach Proof Document
+          </label>
+          <input type="file" id="proofInput" accept="image/*,application/pdf" style="display:none" onchange="attachProof(this)">
+          <div id="proofPreview" style="display:none;margin-top:10px;background:rgba(0,0,0,0.15);border-radius:8px;padding:10px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div id="proofThumbManual" style="width:44px;height:44px;border-radius:7px;border:1.5px solid #2E7D52;background:#1B4332;display:flex;align-items:center;justify-content:center;font-size:1.3rem;overflow:hidden"></div>
+              <div style="flex:1"><div id="proofFileName" style="font-size:0.82rem;font-weight:600;color:#81C784"></div></div>
+              <button onclick="clearProof()" style="background:none;border:none;color:#6EE7B7;cursor:pointer;font-size:1rem">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EXPENSE FORM ══ -->
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" class="form-control" id="entryDate">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select class="form-control" id="entryCat"></select>
+      </div>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" class="form-control" id="entryAmt" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label>Note (optional)</label>
+      <input type="text" class="form-control" id="entryNote" placeholder="e.g. Big Bazaar, Petrol full tank, Reliance Fresh...">
+    </div>
+
+    <!-- ══ ATTACH BILL — always visible, no AI needed ══ -->
+    <div style="background:#F0FFF4;border:2px dashed #2E7D52;border-radius:12px;padding:14px 16px;margin-top:14px">
+      <div style="font-size:0.78rem;font-weight:700;color:#2E7D52;margin-bottom:10px">
+        📎 ATTACH BILL COPY / PROOF
+        <span style="font-weight:400;color:#5A7A65;font-size:0.73rem"> — Optional, works without AI</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <button type="button" onclick="document.getElementById('quickProofInput').click()"
+          style="background:#2E7D52;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap">
+          📷 Upload Bill Copy
+        </button>
+        <input type="file" id="quickProofInput" accept="image/*,application/pdf" style="position:absolute;left:-9999px;opacity:0" onchange="quickAttach(this)">
+        <div style="font-size:0.75rem;color:#5A7A65;line-height:1.5">
+          JPG · PNG · PDF · Any bill photo<br>
+          <span style="color:#2E7D52;font-size:0.7rem">Saved to your Google Drive automatically</span>
+        </div>
+      </div>
+
+      <div id="quickProofThumb" style="display:none;margin-top:12px;background:#fff;border-radius:10px;padding:10px 14px;border:1.5px solid #81C784">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="quickThumbImg" style="width:52px;height:52px;border-radius:8px;border:1.5px solid #2E7D52;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;overflow:hidden"></div>
+          <div style="flex:1;min-width:0">
+            <div id="quickThumbName" style="font-size:0.85rem;font-weight:700;color:#2E7D52;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+            <div style="font-size:0.72rem;color:#5A7A65;margin-top:2px">✅ Ready to save with this expense</div>
+          </div>
+          <button onclick="clearQuickProof()" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;cursor:pointer;font-size:0.75rem;padding:5px 10px;border-radius:7px;font-family:'DM Sans',sans-serif;font-weight:600">✕ Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-add" id="btnAdd" onclick="addEntry()">➕ Add Expense to Google Sheets</button>
+  </div>
+
+    <div class="chart-container">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div class="chart-title" style="margin-bottom:0">Recent Entries (All Family)</div>
+      <div style="position:relative">
+        <input type="text" id="searchBox" oninput="filterEntries()" placeholder="🔍 Search category, note, amount..." 
+          style="border:1.5px solid var(--border);border-radius:10px;padding:8px 14px 8px 14px;font-family:DM Sans,sans-serif;font-size:0.85rem;color:var(--deep);background:var(--cream);width:280px;transition:border-color 0.2s"
+          onfocus="this.style.borderColor='#2E7D52';this.style.background='#fff'"
+          onblur="this.style.borderColor='var(--border)';this.style.background='var(--cream)'">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Note</th><th>Added By</th><th></th></tr></thead>
+        <tbody id="recentTbody"><tr><td colspan="6" class="loading-spinner">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY VIEW -->
+<div class="tab-content" id="tab-monthly">
+  <div class="chart-container">
+    <div class="chart-title">Category Breakdown — <span id="chartMonthLabel"></span></div>
+    <div class="bar-chart" id="barChart"></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-title">All Entries This Month</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Note</th><th>By</th><th></th></tr></thead>
+        <tbody id="monthlyTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FAMILY ACTIVITY -->
+<div class="tab-content" id="tab-family">
+  <div class="section-title">Who Added What — This Month</div>
+  <div id="familyByPerson"></div>
+  <div class="section-title" style="margin-top:24px">Latest Activity Feed</div>
+  <div class="activity-feed" id="activityFeed"></div>
+</div>
+
+<!-- BUDGETS -->
+<div class="tab-content" id="tab-budget">
+
+  <!-- Custom Category Manager -->
+  <div class="section-title">➕ Add Custom Category</div>
+  <div style="background:var(--card);border-radius:14px;padding:20px;box-shadow:var(--shadow);margin-bottom:24px">
+    <p style="color:var(--muted);font-size:0.83rem;margin-bottom:16px">Can't find your category? Add your own custom one here — it saves on this device.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 80px auto;gap:10px;align-items:end">
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Category Name</label>
+        <input type="text" id="newCatName" class="form-control" placeholder="e.g. Car Parking">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Icon (emoji)</label>
+        <input type="text" id="newCatIcon" class="form-control" placeholder="e.g. 🚘" maxlength="4" style="font-size:1.3rem;text-align:center">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Color</label>
+        <input type="color" id="newCatColor" value="#2E7D52" style="width:100%;height:42px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;padding:2px">
+      </div>
+      <button class="btn-add" style="margin-top:0;padding:11px 16px" onclick="addCustomCategory()">+ Add</button>
+    </div>
+    <!-- Custom categories list -->
+    <div id="customCatList" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
+
+  <div class="section-title">🎯 Set Monthly Budgets</div>
+  <p style="color:var(--muted);font-size:0.83rem;margin-bottom:18px">Budgets are shared with your whole family via Google Sheets.</p>
+  <div class="budget-grid" id="budgetGrid"></div>
+  <button class="btn-add" style="margin-top:18px;max-width:220px" onclick="saveBudgets()">💾 Save Budgets</button>
+</div>
+
+<!-- INSIGHTS -->
+<div class="tab-content" id="tab-insights">
+  <div class="ai-panel">
+    <h3>🤖 Smart Insights for Your Family</h3>
+    <div id="aiSuggestions"></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-title">6-Month Spending Trend</div>
+    <div class="bar-chart" id="trendChart"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(13,43,26,0.7);z-index:500;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;padding:28px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.3)">
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#0D2B1A;margin-bottom:18px">✏️ Edit Entry</h3>
+    <input type="hidden" id="editId">
+    <input type="hidden" id="editMonth">
+    <div style="display:grid;gap:12px">
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:#5A7A65;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Date</label>
+        <input type="date" id="editDate" style="width:100%;border:1.5px solid #D6EFE0;border-radius:10px;padding:10px 13px;font-family:DM Sans,sans-serif;font-size:0.9rem;color:#0D2B1A;background:#F1FAF4">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:#5A7A65;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Category</label>
+        <select id="editCat" style="width:100%;border:1.5px solid #D6EFE0;border-radius:10px;padding:10px 13px;font-family:DM Sans,sans-serif;font-size:0.9rem;color:#0D2B1A;background:#F1FAF4"></select>
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:#5A7A65;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Amount (₹)</label>
+        <input type="number" id="editAmt" style="width:100%;border:1.5px solid #D6EFE0;border-radius:10px;padding:10px 13px;font-family:DM Sans,sans-serif;font-size:0.9rem;color:#0D2B1A;background:#F1FAF4" min="0">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:#5A7A65;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px">Note</label>
+        <input type="text" id="editNote" style="width:100%;border:1.5px solid #D6EFE0;border-radius:10px;padding:10px 13px;font-family:DM Sans,sans-serif;font-size:0.9rem;color:#0D2B1A;background:#F1FAF4" placeholder="Optional note">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="submitEdit()" style="flex:1;background:#2E7D52;color:#fff;border:none;padding:12px;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer">💾 Save Changes</button>
+      <button onclick="closeEdit()" style="padding:12px 20px;background:#F1FAF4;color:#5A7A65;border:1.5px solid #D6EFE0;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:600;cursor:pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ CATEGORIES ════════════════════════════════════════════════
+let CATEGORIES = [
+  { id:'rent',         name:'House Rent',              icon:'🏠', color:'#E74C3C', bg:'#FDEDEC' },
+  { id:'grocery',      name:'Monthly Grocery',          icon:'🛒', color:'#27AE60', bg:'#EAFAF1' },
+  { id:'veg_fruits',   name:'Vegetables & Fruits',      icon:'🥦', color:'#2ECC71', bg:'#E9F7EF' },
+  { id:'milk',         name:'Milk / Dairy',             icon:'🥛', color:'#3498DB', bg:'#EBF5FB' },
+  { id:'dining',       name:'Dining / Eating Out',      icon:'🍽️', color:'#E67E22', bg:'#FEF9E7' },
+  { id:'petrol',       name:'Petrol / Fuel',            icon:'⛽', color:'#8E44AD', bg:'#F5EEF8' },
+  { id:'car_emi',      name:'Car EMI',                  icon:'🚗', color:'#2C3E50', bg:'#EAECEE' },
+  { id:'car_clean',    name:'Car Cleaning',             icon:'🧹', color:'#1ABC9C', bg:'#E8F8F5' },
+  { id:'car_service',  name:'Car & Bike Service/Ins.',  icon:'🔧', color:'#D35400', bg:'#FBEEE6' },
+  { id:'electricity',  name:'Electricity Bill',         icon:'💡', color:'#F1C40F', bg:'#FEFCE8' },
+  { id:'utility',      name:'Utility Bills',            icon:'🚿', color:'#16A085', bg:'#E8F8F5' },
+  { id:'school_fee',   name:'Kids School Fee',          icon:'🎒', color:'#2980B9', bg:'#EBF5FB' },
+  { id:'stationery',   name:'Stationery / School',      icon:'✏️', color:'#8E44AD', bg:'#F4ECF7' },
+  { id:'medicines',    name:'Medicines',                icon:'💊', color:'#E74C3C', bg:'#FDEDEC' },
+  { id:'health_ins',   name:'Health Insurance',         icon:'🏥', color:'#1ABC9C', bg:'#E8F8F5' },
+  { id:'lic',          name:'LIC Premium',              icon:'📋', color:'#2E86C1', bg:'#EBF5FB' },
+  { id:'max_life',     name:'Max Life Term Insurance',  icon:'🛡️', color:'#154360', bg:'#EAF2F8' },
+  { id:'sip',          name:'SIP / Mutual Fund',        icon:'📈', color:'#117A65', bg:'#E8F8F5' },
+  { id:'gold_save',    name:'Gold Saving / Jewellery',  icon:'🥇', color:'#D4A017', bg:'#FEF9E7' },
+  { id:'gold_invest',  name:'Gold Investment',          icon:'💰', color:'#B7950B', bg:'#FEF5E7' },
+  { id:'ssa',          name:'SSA Account (Sukanya)',    icon:'👧', color:'#E91E8C', bg:'#FDE8F4' },
+  { id:'parents',      name:'Parents / Home Visit',     icon:'👨‍👩‍👦', color:'#884EA0', bg:'#F5EEF8' },
+  { id:'relatives',    name:'Relatives Gifting',        icon:'🎁', color:'#E67E22', bg:'#FEF9E7' },
+  { id:'entertainment',name:'Entertainment',            icon:'🎬', color:'#C0392B', bg:'#FDEDEC' },
+  { id:'emergency',    name:'Emergency / Medical',      icon:'🚨', color:'#E74C3C', bg:'#FDEDEC' },
+  { id:'home_repair',  name:'Home Repair / Maint.',     icon:'🔨', color:'#795548', bg:'#EFEBE9' },
+  { id:'internet',     name:'Internet / Mobile Recharge',icon:'📱', color:'#0288D1', bg:'#E1F5FE' },
+  { id:'clothing',     name:'Clothing & Footwear',      icon:'👗', color:'#AD1457', bg:'#FCE4EC' },
+  { id:'festivals',    name:'Festivals / Pooja',        icon:'🪔', color:'#FF6B35', bg:'#FFF3EE' },
+  { id:'savings',      name:'Other Savings / RD/FD',    icon:'🏦', color:'#00897B', bg:'#E0F2F1' },
+  { id:'other',        name:'Other / Miscellaneous',    icon:'📌', color:'#607D8B', bg:'#ECEFF1' },
+];
+
+// Sort categories alphabetically by name (custom ones will be added after)
+CATEGORIES.sort((a, b) => a.name.localeCompare(b.name));
+
+// ══ STATE ═════════════════════════════════════════════════════
+let SCRIPT_URL = '';
+let USER_NAME  = '';
+let FAMILY_PIN = '';
+let currentMonth = getMonthKey(new Date());
+let allExpenses  = [];   // flat array from server
+let budgets      = {};
+
+// ══ UTILS ═════════════════════════════════════════════════════
+function getMonthKey(d) {
+  // Use LOCAL date so IST users get correct month (not UTC)
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth()+1).padStart(2,'0');
+  return yyyy + '-' + mm;
+}
+function fmt(n) { return '₹' + Number(n||0).toLocaleString('en-IN'); }
+
+// Safely format date — handles both 'YYYY-MM-DD' and ISO strings from Sheets
+function fmtDate(raw) {
+  if (!raw) return '—';
+  // If it's a Date object or ISO string, extract just YYYY-MM-DD in local time
+  const s = String(raw);
+  // Already in YYYY-MM-DD format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ISO string — convert to local date
+  const d = new Date(s);
+  if (isNaN(d)) return s;
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth()+1).padStart(2,'0');
+  const dd   = String(d.getDate()).padStart(2,'0');
+  return yyyy + '-' + mm + '-' + dd;
+}
+function today() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth()+1).padStart(2,'0');
+  const dd   = String(d.getDate()).padStart(2,'0');
+  return yyyy + '-' + mm + '-' + dd;
+}
+function catInfo(id) { return CATEGORIES.find(c => c.id === id) || { name:id, icon:'📌', color:'#999', bg:'#eee' }; }
+function monthExpenses() {
+  return allExpenses.filter(e => {
+    // Primary: use stored month field
+    if (e.month && e.month === currentMonth) return true;
+    // Fallback: derive month from date string (handles old/malformed data)
+    if (e.date) {
+      const d = fmtDate(e.date); // normalize to YYYY-MM-DD
+      return d.slice(0,7) === currentMonth;
+    }
+    return false;
+  });
+}
+function catTotal(catId) { return monthExpenses().filter(e => e.cat === catId).reduce((s,e)=>s+e.amt, 0); }
+function monthTotal() { return monthExpenses().reduce((s,e)=>s+e.amt, 0); }
+function budgetTotal() { return Object.values(budgets).reduce((s,v)=>s+Number(v||0), 0); }
+
+// ══ SETUP ═════════════════════════════════════════════════════
+function connectToSheets() {
+  const url  = document.getElementById('scriptUrl').value.trim();
+  const name = document.getElementById('userName').value.trim();
+  const pin  = document.getElementById('familyPin').value.trim();
+
+  if(!name) { alert('Please enter your name to continue'); return; }
+
+  SCRIPT_URL = url;
+  USER_NAME  = name;
+  FAMILY_PIN = pin;
+
+  localStorage.setItem('gs_scriptUrl', url);
+  localStorage.setItem('gs_userName', name);
+  localStorage.setItem('gs_pin', pin);
+
+  document.getElementById('setupOverlay').style.display = 'none';
+  document.getElementById('userPill').textContent = '👤 ' + name;
+
+  initApp();
+}
+
+function loadSavedConfig() {
+  const BAKED_URL = 'https://script.google.com/macros/s/AKfycbxeSB838hpuekAe1lDlww0HA5oRdQSEmFqTXWaqMpVyrRjIvRRyK_7mfbPGNARYF_Yy/exec';
+  SCRIPT_URL = localStorage.getItem('gs_scriptUrl') || BAKED_URL;
+  USER_NAME  = localStorage.getItem('gs_userName') || '';
+  FAMILY_PIN = localStorage.getItem('gs_pin') || '';
+
+  if(SCRIPT_URL && USER_NAME) {
+    document.getElementById('setupOverlay').style.display = 'none';
+    document.getElementById('userPill').textContent = '👤 ' + USER_NAME;
+
+    // Pre-fill setup form in case user wants to change
+    document.getElementById('scriptUrl').value = SCRIPT_URL;
+    document.getElementById('userName').value = USER_NAME;
+
+    initApp();
+  } else {
+    // Pre-fill if partial
+    if(SCRIPT_URL) document.getElementById('scriptUrl').value = SCRIPT_URL;
+    if(USER_NAME)  document.getElementById('userName').value = USER_NAME;
+  }
+}
+
+// ══ API CALLS (CORS-safe) ════════════════════════════════════
+function setSyncStatus(status, msg) {
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot ' + (status === 'ok' ? 'ok' : status === 'err' ? 'err' : 'loading');
+  document.getElementById('syncMsg').textContent = msg;
+}
+
+// GET requests — used for reading data (getExpenses, getBudgets)
+async function apiCall(params) {
+  const qs  = new URLSearchParams(params).toString();
+  const url = SCRIPT_URL + '?' + qs;
+  const res = await fetch(url, { method:'GET', redirect:'follow' });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Bad response: ' + text.slice(0,120)); }
+}
+
+// POST with text/plain header — avoids CORS preflight for write ops
+async function apiPost(body) {
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Bad response: ' + text.slice(0,120)); }
+}
+
+// ══ DATA OPS ═════════════════════════════════════════════════
+async function syncData() {
+  setSyncStatus('loading', 'Syncing with Google Sheets...');
+  try {
+    // Load ALL expenses (no month filter — we need 6-month trend)
+    const [expRes, bgtRes] = await Promise.all([
+      apiCall({ action:'getExpenses' }),
+      apiCall({ action:'getBudgets' })
+    ]);
+    allExpenses = (expRes.expenses || []).map(e => ({
+      ...e,
+      proofLink: e.proofLink || ''
+    }));
+    budgets = bgtRes.budgets || {};
+    setSyncStatus('ok', 'Synced at ' + new Date().toLocaleTimeString('en-IN'));
+    refresh();
+    toast('✅ Synced!');
+  } catch(err) {
+    setSyncStatus('err', 'Sync failed — check your Script URL');
+    toast('❌ Sync failed: ' + err.message);
+    console.error(err);
+  }
+}
+
+async function addEntry() {
+  const date = document.getElementById('entryDate').value;
+  const cat  = document.getElementById('entryCat').value;
+  const amt  = Number(document.getElementById('entryAmt').value);
+  const note = document.getElementById('entryNote').value.trim();
+
+  if(!date) { toast('Please select a date'); return; }
+  if(!amt || amt <= 0) { toast('Enter a valid amount'); return; }
+
+  const btn = document.getElementById('btnAdd');
+  if (btn.disabled) return; // prevent double submit
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+
+  try {
+    // Step 1: Collect proof file if attached
+    const attachedDataUrl = quickProofBase64 || proofBase64 || '';
+    const attachedName    = quickProofName   || proofName   || '';
+    const attachedMime    = attachedDataUrl  ? (attachedDataUrl.split(';')[0].replace('data:','') || 'image/jpeg') : '';
+    // Compress image before sending (keeps under 1MB)
+    let finalDataUrl = attachedDataUrl;
+    if (attachedDataUrl && attachedDataUrl.startsWith('data:image')) {
+      btn.textContent = '⏳ Compressing image...';
+      finalDataUrl = await compressImage(attachedDataUrl, 800);
+    }
+    const cleanB64 = finalDataUrl ? finalDataUrl.split(',')[1] : '';
+
+    // Show uploading status if proof attached
+    if (attachedDataUrl) {
+      btn.textContent = '⏳ Uploading proof to Drive...';
+    }
+
+    // Step 2: Save expense + proof in one call
+    const res = await apiPost({
+      action:    'addExpense',
+      date, cat, amt,
+      note:      note,
+      addedBy:   USER_NAME,
+      proofData: cleanB64,
+      proofName: attachedName,
+      proofMime: attachedMime
+    });
+
+    if (res.error) throw new Error(res.error);
+
+    // Step 3: Clear all proof fields
+    clearReceipt();
+    clearProof();
+    clearQuickProof();
+
+    // Step 4: Update local state with proofLink from server
+    const newEntry = {
+      id:        res.id,
+      date,
+      month:     date.slice(0,7),
+      cat, amt, note,
+      addedBy:   USER_NAME,
+      proofLink: res.proofLink || ''
+    };
+    allExpenses.push(newEntry);
+
+    document.getElementById('entryAmt').value  = '';
+    document.getElementById('entryNote').value = '';
+
+    refresh();
+    const msg = res.proofLink
+      ? '✅ Expense + proof saved to Google Drive!'
+      : '✅ Expense saved to Google Sheets!';
+    toast(msg);
+
+  } catch(err) {
+    toast('❌ Save failed: ' + err.message);
+    console.error('addEntry error:', err);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = '➕ Add Expense to Google Sheets';
+  }
+}
+
+async function deleteEntry(id) {
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  try {
+    const res = await apiPost({ action:'deleteExpense', id: id.toString() });
+    if (res.error) throw new Error(res.error);
+    // Remove from local state
+    allExpenses = allExpenses.filter(e => e.id.toString() !== id.toString());
+    refresh();
+    // Also rebuild whichever tab is currently active
+    buildRecentTable();
+    buildMonthlyTable();
+    toast('🗑 Entry deleted successfully');
+  } catch(err) {
+    toast('❌ Delete failed: ' + err.message);
+    console.error('Delete error:', err);
+    // Re-sync to get correct state
+    await syncData();
+  }
+}
+
+async function saveBudgets() {
+  const newBudgets = {};
+  CATEGORIES.forEach(c => {
+    const v = Number(document.getElementById('bgt_' + c.id)?.value || 0);
+    if(v > 0) newBudgets[c.id] = v;
+  });
+  try {
+    const res = await apiPost({ action:'saveBudgets', budgets: newBudgets });
+    if(res.error) throw new Error(res.error);
+    budgets = newBudgets;
+    refresh();
+    toast('✅ Budgets saved to Google Sheets!');
+  } catch(err) {
+    toast('❌ Save failed: ' + err.message);
+  }
+}
+
+// ══ DASHBOARD ════════════════════════════════════════════════
+function buildSummary() {
+  const total    = monthTotal();
+  const budget   = budgetTotal();
+  const remaining= budget - total;
+  const [y,m]    = currentMonth.split('-');
+  const label    = new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+
+  let topCat = '—';
+  let topAmt = 0;
+  CATEGORIES.forEach(c => {
+    const t = catTotal(c.id);
+    if(t > topAmt) { topAmt = t; topCat = c.icon + ' ' + c.name.split('/')[0].trim(); }
+  });
+
+  document.getElementById('summaryRow').innerHTML = `
+    <div class="summary-card saffron">
+      <label>Total Spent — ${label}</label>
+      <div class="amount">${fmt(total)}</div>
+      <div class="sub">${monthExpenses().length} transactions</div>
+    </div>
+    <div class="summary-card">
+      <label>Monthly Budget</label>
+      <div class="amount">${budget > 0 ? fmt(budget) : '—'}</div>
+      <div class="sub">Set in Budgets tab</div>
+    </div>
+    <div class="summary-card ${remaining < 0 ? 'red' : 'green'}">
+      <label>${remaining < 0 ? 'Over Budget' : 'Remaining'}</label>
+      <div class="amount">${budget > 0 ? fmt(Math.abs(remaining)) : '—'}</div>
+      <div class="sub">${budget > 0 ? (remaining < 0 ? '⚠️ Over budget' : '✅ On track') : 'No budget set'}</div>
+    </div>
+    <div class="summary-card">
+      <label>Highest Category</label>
+      <div class="amount" style="font-size:1rem;margin-top:6px">${topCat}</div>
+      <div class="sub">${topAmt > 0 ? fmt(topAmt) : 'No entries yet'}</div>
+    </div>
+  `;
+}
+
+function buildCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(c => {
+    const spent  = catTotal(c.id);
+    if(spent === 0 && !budgets[c.id]) return; // hide empty, unbudgeted cats
+    const budget = Number(budgets[c.id] || 0);
+    const pct    = budget > 0 ? Math.min(100, (spent/budget)*100) : 0;
+    const barColor = pct > 90 ? '#E74C3C' : pct > 70 ? '#E67E22' : c.color;
+
+    const div = document.createElement('div');
+    div.className = 'cat-card';
+    div.innerHTML = `
+      <div class="cat-icon" style="background:${c.bg}">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-budget">${budget > 0 ? 'Budget: ' + fmt(budget) : 'No budget'}</div>
+        <div class="cat-spent">${fmt(spent)}</div>
+        ${budget > 0 ? `
+          <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${barColor}"></div></div>
+        ` : ''}
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+
+  if(grid.innerHTML === '') {
+    grid.innerHTML = '<p style="color:var(--muted);font-size:0.88rem;padding:20px 0">No entries yet for this month. Add expenses or set budgets to see categories here.</p>';
+  }
+}
+
+// ══ RECENT TABLE ════════════════════════════════════════════
+function buildRecentTable() {
+  const sorted = [...allExpenses].sort((a,b) => b.date.localeCompare(a.date)).slice(0,50);
+  const tbody  = document.getElementById('recentTbody');
+  tbody.innerHTML = '';
+  if(!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">No entries yet.</td></tr>';
+    return;
+  }
+  sorted.forEach(e => {
+    const c = catInfo(e.cat);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${fmtDate(e.date)}</td>
+      <td><span class="badge" style="background:${c.bg};color:${c.color}">${c.icon} ${c.name}</span></td>
+      <td><strong>${fmt(e.amt)}</strong></td>
+      <td style="color:var(--muted);font-size:0.8rem">${e.note || '—'}</td>
+      <td><span class="who-pill">${e.addedBy || '—'}</span></td>
+      <td style="display:flex;gap:4px">${e.proofLink ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>' : ''}<button class="btn-del" title="Edit" onclick="openEdit('${e.id}')" style="color:#2E7D52">✏️</button><button class="btn-del" title="Delete" onclick="deleteEntry('${e.id}')">🗑</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══ MONTHLY VIEW ════════════════════════════════════════════
+function buildBarChart() {
+  const [y,m] = currentMonth.split('-');
+  document.getElementById('chartMonthLabel').textContent = new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+
+  const data = CATEGORIES
+    .map(c => ({ ...c, spent: catTotal(c.id) }))
+    .filter(c => c.spent > 0)
+    .sort((a,b) => b.spent - a.spent);
+
+  const max = data[0]?.spent || 1;
+  const chart = document.getElementById('barChart');
+  chart.innerHTML = data.length === 0 ? '<p style="color:var(--muted);padding:20px;text-align:center">No expenses this month.</p>' : '';
+  data.forEach(c => {
+    const pct = (c.spent/max)*100;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${c.icon} ${c.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${c.color}">${pct>25?fmt(c.spent):''}</div></div>
+      <div class="bar-val">${fmt(c.spent)}</div>
+    `;
+    chart.appendChild(row);
+  });
+}
+
+function buildMonthlyTable() {
+  const entries = monthExpenses().slice().sort((a,b) => b.date.localeCompare(a.date));
+  const tbody = document.getElementById('monthlyTbody');
+  tbody.innerHTML = '';
+  if(!entries.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">No entries for this month.</td></tr>';
+    return;
+  }
+  entries.forEach(e => {
+    const c = catInfo(e.cat);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${fmtDate(e.date)}</td>
+      <td><span class="badge" style="background:${c.bg};color:${c.color}">${c.icon} ${c.name}</span></td>
+      <td><strong>${fmt(e.amt)}</strong></td>
+      <td style="color:var(--muted);font-size:0.8rem">${e.note||'—'}</td>
+      <td><span class="who-pill">${e.addedBy||'—'}</span></td>
+      <td style="display:flex;gap:4px">${e.proofLink ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>' : ''}<button class="btn-del" title="Edit" onclick="openEdit('${e.id}')" style="color:#2E7D52">✏️</button><button class="btn-del" title="Delete" onclick="deleteEntry('${e.id}')">🗑</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══ FAMILY ACTIVITY ═════════════════════════════════════════
+function buildFamilyActivity() {
+  const entries = monthExpenses();
+
+  // Group by person
+  const byPerson = {};
+  entries.forEach(e => {
+    const who = e.addedBy || 'Unknown';
+    if(!byPerson[who]) byPerson[who] = { total: 0, count: 0 };
+    byPerson[who].total += e.amt;
+    byPerson[who].count++;
+  });
+
+  const personDiv = document.getElementById('familyByPerson');
+  personDiv.innerHTML = '';
+  const pRow = document.createElement('div');
+  pRow.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px';
+  Object.keys(byPerson).forEach(name => {
+    const p = byPerson[name];
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--card);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow);min-width:150px';
+    card.innerHTML = `
+      <div style="font-weight:700;font-size:1rem">${name}</div>
+      <div style="font-family:\'Playfair Display\',serif;font-size:1.4rem;color:var(--saffron);margin-top:4px">${fmt(p.total)}</div>
+      <div style="font-size:0.75rem;color:var(--muted)">${p.count} entries</div>
+    `;
+    pRow.appendChild(card);
+  });
+  personDiv.appendChild(pRow);
+
+  // Activity feed
+  const feed = document.getElementById('activityFeed');
+  feed.innerHTML = '';
+  const recent = [...entries].sort((a,b) => b.date.localeCompare(a.date)).slice(0,20);
+  if(!recent.length) {
+    feed.innerHTML = '<p style="color:var(--muted);padding:20px">No activity yet this month.</p>';
+    return;
+  }
+  recent.forEach(e => {
+    const c = catInfo(e.cat);
+    const who = e.addedBy || '?';
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+    item.innerHTML = `
+      <div class="activity-avatar" style="background:${c.color}">${who.charAt(0).toUpperCase()}</div>
+      <div class="activity-detail">
+        <strong>${who}</strong> added ${c.icon} ${c.name}
+        <div class="meta">${fmtDate(e.date)}${e.note ? ' · ' + e.note : ''}</div>
+      </div>
+      <div class="activity-amt">${fmt(e.amt)}</div>
+    `;
+    feed.appendChild(item);
+  });
+}
+
+// ══ BUDGET ═══════════════════════════════════════════════════
+function buildBudgetGrid() {
+  const grid = document.getElementById('budgetGrid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'budget-card';
+    div.innerHTML = `
+      <div class="bcat"><span style="font-size:1.2rem">${c.icon}</span><span>${c.name}</span></div>
+      <div style="display:flex;align-items:center;gap:5px">
+        <span style="color:var(--muted);font-size:0.85rem">₹</span>
+        <input class="budget-input" type="number" id="bgt_${c.id}" value="${budgets[c.id]||''}" placeholder="Monthly limit" min="0">
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// ══ INSIGHTS ════════════════════════════════════════════════
+function buildInsights() {
+  const total  = monthTotal();
+  const budget = budgetTotal();
+  const tips   = [];
+
+  CATEGORIES.forEach(c => {
+    const spent = catTotal(c.id);
+    const b = Number(budgets[c.id]||0);
+    if(b > 0 && spent > b) tips.push(`<strong>${c.icon} ${c.name}:</strong> Overspent by ${fmt(spent-b)}. Consider adjusting next month.`);
+  });
+
+  const sipTotal = catTotal('sip')+catTotal('gold_invest')+catTotal('gold_save')+catTotal('ssa')+catTotal('savings');
+  if(total > 0 && sipTotal/total < 0.1) tips.push(`<strong>💰 Savings Alert:</strong> Your savings/investments are only ${((sipTotal/total)*100).toFixed(0)}% of spending. Aim for 20%.`);
+
+  const mo = new Date().getMonth()+1;
+  if([10,11].includes(mo)) tips.push(`<strong>🪔 Festive Season:</strong> Plan ahead for Dussehra, Diwali — gifts, sweets, new clothes, pooja items.`);
+  if([3,4].includes(mo)) tips.push(`<strong>🎒 New Academic Year:</strong> April brings school fees, books, uniforms. Set aside a separate budget.`);
+
+  tips.push(`<strong>📊 50-30-20 Rule:</strong> Needs (rent, EMI, groceries) ≤ 50% · Wants (dining, entertainment) ≤ 30% · Savings ≥ 20%.`);
+  tips.push(`<strong>👧 SSA Reminder:</strong> Sukanya Samriddhi earns ~8.2% p.a. tax-free. Deposit before March 31 for 80C benefit.`);
+  tips.push(`<strong>🥇 Gold Investment:</strong> Sovereign Gold Bonds (SGBs) are tax-efficient vs physical gold. Consider SGB for long-term goals.`);
+
+  if(!tips.length) tips.push(`<strong>✅ Great job!</strong> You're within budget this month. Keep it up!`);
+  document.getElementById('aiSuggestions').innerHTML = tips.map(t=>`<div class="ai-tip">${t}</div>`).join('');
+
+  // 6-month trend
+  const months = [];
+  const now = new Date();
+  for(let i=5;i>=0;i--) {
+    const d = new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push(getMonthKey(d));
+  }
+  const totals = months.map(m => ({ m, total: allExpenses.filter(e=>e.month===m).reduce((s,e)=>s+e.amt,0) }));
+  const maxT = Math.max(...totals.map(t=>t.total),1);
+  const tc = document.getElementById('trendChart');
+  tc.innerHTML = '';
+  totals.forEach(({m,total}) => {
+    const [y,mo2] = m.split('-');
+    const label = new Date(y,mo2-1,1).toLocaleDateString('en-IN',{month:'short',year:'2-digit'});
+    const pct = (total/maxT)*100;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--saffron)">${pct>20?fmt(total):''}</div></div>
+      <div class="bar-val">${fmt(total)}</div>
+    `;
+    tc.appendChild(row);
+  });
+}
+
+// ══ EXPORT ═══════════════════════════════════════════════════
+function exportCSV() {
+  const sorted = [...allExpenses].sort((a,b)=>a.date.localeCompare(b.date));
+  const rows = sorted.map(e => {
+    const c = catInfo(e.cat);
+    return [e.date, c.name, e.amt, e.note||'', e.addedBy||''].join(',');
+  });
+  const csv = 'Date,Category,Amount,Note,AddedBy\n' + rows.join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'GharSamridhi_Expenses.csv';
+  a.click();
+  toast('📥 CSV exported!');
+}
+
+// ══ TAB / MONTH ═════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['dashboard','add','monthly','family','budget','insights'];
+    t.classList.toggle('active',names[i]===name);
+  });
+  document.querySelectorAll('.tab-content').forEach(tc=>{
+    tc.classList.toggle('active',tc.id==='tab-'+name);
+  });
+  if(name==='family') buildFamilyActivity();
+  if(name==='insights') buildInsights();
+  if(name==='budget') { buildBudgetGrid(); buildCustomCatList(); }
+}
+
+function buildMonthSelector() {
+  const sel = document.getElementById('monthSel');
+  sel.innerHTML = '';
+  const now = new Date();
+  for(let i=0;i<12;i++){
+    const d = new Date(now.getFullYear(),now.getMonth()-i,1);
+    const key = getMonthKey(d);
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.text = d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    if(key===currentMonth) opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
+function changeMonth(){
+  currentMonth = document.getElementById('monthSel').value;
+  refresh();
+}
+
+function buildCatDropdown(){
+  const sel = document.getElementById('entryCat');
+  sel.innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+}
+
+// ══ TOAST ════════════════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══ REFRESH ══════════════════════════════════════════════════
+function refresh(){
+  buildSummary();
+  buildCatGrid();
+  buildRecentTable();
+  buildBarChart();
+  buildMonthlyTable();
+}
+
+// ══ INIT ═════════════════════════════════════════════════════
+async function initApp(){
+  loadCustomCategories(); // Load saved custom categories first
+  buildMonthSelector();
+  buildCatDropdown();
+  document.getElementById('entryDate').value = today();
+  await syncData();
+  buildBudgetGrid();
+
+  // Auto-sync every 2 minutes
+  setInterval(syncData, 120000);
+}
+
+
+// ══ EDIT ENTRY ═══════════════════════════════════════════════
+function openEdit(id) {
+  const e = allExpenses.find(x => x.id.toString() === id.toString());
+  if (!e) { toast('Entry not found — try syncing first'); return; }
+
+  document.getElementById('editId').value    = e.id;
+  document.getElementById('editDate').value  = fmtDate(e.date);
+  document.getElementById('editAmt').value   = e.amt;
+  document.getElementById('editNote').value  = e.note || '';
+
+  // Populate category dropdown
+  const sel = document.getElementById('editCat');
+  sel.innerHTML = CATEGORIES.map(c =>
+    `<option value="${c.id}" ${c.id === e.cat ? 'selected' : ''}>${c.icon} ${c.name}</option>`
+  ).join('');
+
+  const modal = document.getElementById('editModal');
+  modal.style.display = 'flex';
+}
+
+function closeEdit() {
+  document.getElementById('editModal').style.display = 'none';
+}
+
+async function submitEdit() {
+  const id   = document.getElementById('editId').value;
+  const date = document.getElementById('editDate').value;
+  const cat  = document.getElementById('editCat').value;
+  const amt  = Number(document.getElementById('editAmt').value);
+  const note = document.getElementById('editNote').value.trim();
+
+  if (!date) { toast('Please select a date'); return; }
+  if (!amt || amt <= 0) { toast('Enter a valid amount'); return; }
+
+  // Delete old entry then add new one
+  try {
+    // Step 1: delete original
+    const delRes = await apiPost({ action:'deleteExpense', id });
+    if (delRes.error) throw new Error(delRes.error);
+
+    // Step 2: add updated entry (preserving original addedBy)
+    const original = allExpenses.find(x => x.id.toString() === id.toString());
+    const addRes = await apiPost({
+      action: 'addExpense',
+      date, cat, amt, note,
+      addedBy: original ? original.addedBy : USER_NAME
+    });
+    if (addRes.error) throw new Error(addRes.error);
+
+    // Update local state
+    allExpenses = allExpenses.filter(x => x.id.toString() !== id.toString());
+    allExpenses.push({ id: addRes.id, date, month: date.slice(0,7), cat, amt, note, addedBy: original ? original.addedBy : USER_NAME });
+
+    closeEdit();
+    refresh();
+    toast('✅ Entry updated successfully!');
+  } catch(err) {
+    toast('❌ Update failed: ' + err.message);
+  }
+}
+
+// Close modal when clicking outside
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEdit();
+});
+
+
+// ══ SEARCH ═══════════════════════════════════════════════════
+function filterEntries() {
+  const q = (document.getElementById('searchBox')?.value || '').toLowerCase().trim();
+  const rows = document.querySelectorAll('#recentTbody tr');
+  let visible = 0;
+  rows.forEach(tr => {
+    if (!q) { tr.style.display = ''; visible++; return; }
+    const text = tr.innerText.toLowerCase();
+    const show = text.includes(q);
+    tr.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  // Show no-results message
+  const existing = document.getElementById('searchNoResult');
+  if (existing) existing.remove();
+  if (q && visible === 0) {
+    const tr = document.createElement('tr');
+    tr.id = 'searchNoResult';
+    tr.innerHTML = '<td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No entries found for "' + q + '"</td>';
+    document.getElementById('recentTbody').appendChild(tr);
+  }
+}
+
+// ══ CUSTOM CATEGORIES ════════════════════════════════════════
+function loadCustomCategories() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('gs_customCats') || '[]');
+    saved.forEach(c => {
+      if (!CATEGORIES.find(x => x.id === c.id)) {
+        CATEGORIES.push(c);
+      }
+    });
+    // Re-sort alphabetically after adding custom categories
+    CATEGORIES.sort((a, b) => a.name.localeCompare(b.name));
+  } catch(e) {}
+}
+
+function saveCustomCategories() {
+  const custom = CATEGORIES.filter(c => c.isCustom);
+  localStorage.setItem('gs_customCats', JSON.stringify(custom));
+}
+
+function addCustomCategory() {
+  const name  = document.getElementById('newCatName').value.trim();
+  const icon  = document.getElementById('newCatIcon').value.trim() || '📌';
+  const color = document.getElementById('newCatColor').value || '#2E7D52';
+
+  if (!name) { toast('Please enter a category name'); return; }
+  if (name.length < 2) { toast('Name must be at least 2 characters'); return; }
+
+  // Generate unique ID
+  const id = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+
+  // Check for duplicate name
+  if (CATEGORIES.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+    toast('A category with this name already exists!'); return;
+  }
+
+  // Lighten color for background
+  const bg = color + '22'; // add transparency for bg
+
+  const newCat = { id, name, icon, color, bg, isCustom: true };
+  CATEGORIES.push(newCat);
+  saveCustomCategories();
+
+  // Clear inputs
+  document.getElementById('newCatName').value  = '';
+  document.getElementById('newCatIcon').value  = '';
+  document.getElementById('newCatColor').value = '#2E7D52';
+
+  // Refresh dropdowns and UI
+  // Re-sort alphabetically
+  CATEGORIES.sort((a, b) => a.name.localeCompare(b.name));
+  buildCatDropdown();
+  buildCatDropdown2();
+  buildCustomCatList();
+  buildBudgetGrid();
+  refresh();
+  toast('✅ Category "' + name + '" added!');
+}
+
+function deleteCustomCategory(id) {
+  const cat = CATEGORIES.find(c => c.id === id);
+  if (!cat || !cat.isCustom) return;
+  if (!confirm('Delete category "' + cat.name + '"?')) return;
+  CATEGORIES = CATEGORIES.filter(c => c.id !== id);
+  saveCustomCategories();
+  buildCatDropdown();
+  buildCatDropdown2();
+  buildCustomCatList();
+  buildBudgetGrid();
+  refresh();
+  toast('Category deleted');
+}
+
+function buildCustomCatList() {
+  const container = document.getElementById('customCatList');
+  if (!container) return;
+  const custom = CATEGORIES.filter(c => c.isCustom);
+  if (custom.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.8rem;width:100%">No custom categories yet. Add one above!</p>';
+    return;
+  }
+  container.innerHTML = custom.map(c => `
+    <div style="display:flex;align-items:center;gap:6px;background:${c.bg || '#f0f0f0'};
+      border:1.5px solid ${c.color}33;border-radius:20px;padding:5px 12px 5px 8px">
+      <span style="font-size:1rem">${c.icon}</span>
+      <span style="font-size:0.82rem;font-weight:600;color:${c.color}">${c.name}</span>
+      <button onclick="deleteCustomCategory('${c.id}')" 
+        style="background:none;border:none;cursor:pointer;color:#ccc;font-size:0.85rem;padding:0 0 0 4px;line-height:1"
+        title="Delete">✕</button>
+    </div>
+  `).join('');
+}
+
+// Second dropdown builder for edit modal
+function buildCatDropdown2() {
+  const sel = document.getElementById('editCat');
+  if (!sel) return;
+  sel.innerHTML = CATEGORIES.map(c =>
+    `<option value="${c.id}">${c.icon} ${c.name}</option>`
+  ).join('');
+}
+
+
+// ══ RECEIPT SCANNER ══════════════════════════════════════════
+let scannedData  = null;
+let proofBase64  = null;   // base64 of attached proof file
+let proofName    = '';
+let currentMode  = 'ai';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeAI').style.display     = mode === 'ai'     ? 'block' : 'none';
+  document.getElementById('modeManual').style.display = mode === 'manual' ? 'block' : 'none';
+  document.getElementById('btnModeAI').style.background     = mode === 'ai'     ? '#2E7D52' : 'rgba(255,255,255,0.12)';
+  document.getElementById('btnModeManual').style.background = mode === 'manual' ? '#2E7D52' : 'rgba(255,255,255,0.12)';
+  document.getElementById('btnModeAI').style.color     = '#fff';
+  document.getElementById('btnModeManual').style.color = mode === 'manual' ? '#fff' : '#D1FAE5';
+}
+
+// ── AI SCAN MODE ─────────────────────────────────────────────
+async function scanReceipt(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const isPDF = file.type === 'application/pdf';
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64DataUrl = e.target.result;
+    proofBase64 = base64DataUrl;
+    proofName   = file.name;
+
+    // Show thumbnail
+    const thumb = document.getElementById('proofThumb');
+    if (!isPDF && base64DataUrl.startsWith('data:image')) {
+      thumb.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = base64DataUrl;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px';
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = '📄';
+      thumb.style.fontSize = '2rem';
+    }
+
+    document.getElementById('receiptPreview').style.display = 'block';
+    document.getElementById('scanStatus').textContent = '🤖 AI is reading your receipt...';
+    document.getElementById('scanStatus').style.color = '#81C784';
+    document.getElementById('scanResult').textContent = '';
+    document.getElementById('btnApply').style.display = 'none';
+
+    try {
+      // Route through Google Apps Script to avoid CORS
+      const result = await callClaudeViaScript(base64DataUrl, file.type, isPDF);
+      scannedData = result;
+
+      document.getElementById('scanStatus').textContent = '✅ Receipt read successfully!';
+      document.getElementById('scanResult').innerHTML =
+        '<b>Date:</b> ' + (result.date || 'Not detected') + '<br>' +
+        '<b>Category:</b> ' + (result.categoryName || 'Not detected') + '<br>' +
+        '<b>Amount:</b> ' + (result.amount ? '₹' + Number(result.amount).toLocaleString('en-IN') : 'Not detected') + '<br>' +
+        '<b>Note:</b> ' + (result.note || '—');
+      document.getElementById('btnApply').style.display = 'inline-block';
+
+    } catch(err) {
+      document.getElementById('scanStatus').textContent = '❌ Could not read receipt';
+      document.getElementById('scanStatus').style.color = '#FCA5A5';
+      document.getElementById('scanResult').textContent = 'AI scan failed. You can fill the form manually, or switch to Manual mode and attach this as proof.';
+      console.error('Scan error:', err);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function callClaudeViaScript(base64DataUrl, mimeType, isPDF) {
+  const catList    = CATEGORIES.map(c => c.id + ': ' + c.name).join(', ');
+  const todayStr   = today();
+  const base64Data = base64DataUrl.split(',')[1];
+  const imgMimeType = (mimeType && mimeType.startsWith('image/')) ? mimeType : 'image/jpeg';
+
+  const prompt = 'Analyze this receipt/bill for an Indian family expense app. ' +
+    'Return ONLY valid JSON (no markdown): ' +
+    '{"date":"YYYY-MM-DD use ' + todayStr + ' if not visible",' +
+    '"amount":total_number_in_INR,' +
+    '"categoryId":"best match from: ' + catList + '",' +
+    '"categoryName":"matching name",' +
+    '"note":"shop + items max 60 chars"}';
+
+  // Send through Google Apps Script proxy (server-side, no CORS issue)
+  const payload = {
+    action:    'claudeVision',
+    imageData:  base64Data,
+    mimeType:   imgMimeType,
+    prompt:     prompt
+  };
+
+  const res = await fetch(SCRIPT_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body:    JSON.stringify(payload),
+    redirect:'follow'
+  });
+
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch(e) { throw new Error('Server error — check Apps Script deployment'); }
+  if (data.error) throw new Error(data.error);
+  if (!data.result) throw new Error('No result from AI — make sure CLAUDE_API_KEY is set in Script Properties');
+
+  const raw = data.result.replace(/```json|```/g,'').trim();
+  try { return JSON.parse(raw); }
+  catch(e) { throw new Error('AI responded but could not parse. Raw: ' + raw.slice(0,80)); }
+}
+
+function applyScannedData() {
+  if (!scannedData) return;
+  if (scannedData.date)   document.getElementById('entryDate').value = scannedData.date;
+  if (scannedData.amount) document.getElementById('entryAmt').value  = scannedData.amount;
+  if (scannedData.note)   document.getElementById('entryNote').value = scannedData.note;
+  if (scannedData.categoryId) {
+    const sel   = document.getElementById('entryCat');
+    const match = Array.from(sel.options).find(o => o.value === scannedData.categoryId);
+    if (match) sel.value = scannedData.categoryId;
+  }
+  toast('✅ Form filled! Review and submit.');
+  document.getElementById('entryDate').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function clearReceipt() {
+  document.getElementById('receiptInput').value = '';
+  document.getElementById('receiptPreview').style.display = 'none';
+  document.getElementById('btnApply').style.display = 'none';
+  scannedData = null;
+  proofBase64 = null;
+  proofName   = '';
+}
+
+// ── MANUAL + PROOF ATTACH MODE ───────────────────────────────
+function attachProof(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    proofBase64 = e.target.result;
+    proofName   = file.name;
+
+    const thumb = document.getElementById('proofThumbManual');
+    if (file.type.startsWith('image/')) {
+      thumb.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = proofBase64;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:6px';
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = '📄';
+    }
+
+    document.getElementById('proofFileName').textContent = file.name;
+    document.getElementById('proofPreview').style.display = 'flex';
+    toast('📎 Proof attached: ' + file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearProof() {
+  document.getElementById('proofInput').value = '';
+  document.getElementById('proofPreview').style.display = 'none';
+  proofBase64 = null;
+  proofName   = '';
+}
+
+
+// ══ QUICK PROOF ATTACH (always visible on Add Expense) ═══════
+let quickProofBase64 = null;
+let quickProofName   = '';
+
+function quickAttach(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    // Warn if file is too large (>4MB base64 ~ 3MB file)
+    if (dataUrl.length > 4 * 1024 * 1024) {
+      toast('⚠️ File is large — may take longer to upload');
+    }
+    quickProofBase64 = dataUrl;
+    quickProofName   = file.name;
+
+    // Show thumb
+    const thumb = document.getElementById('quickThumbImg');
+    if (file.type.startsWith('image/')) {
+      thumb.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = quickProofBase64;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:4px';
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = '📄';
+    }
+
+    document.getElementById('quickThumbName').textContent = file.name;
+    document.getElementById('quickProofName').textContent = '✅ ' + file.name;
+    document.getElementById('quickProofThumb').style.display = 'flex';
+    toast('📎 ' + file.name + ' attached!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearQuickProof() {
+  const inp = document.getElementById('quickProofInput');
+  if (inp) inp.value = '';
+  quickProofBase64 = null;
+  quickProofName   = '';
+  document.getElementById('quickProofThumb').style.display = 'none';
+  document.getElementById('quickProofName').textContent = 'Optional — JPG, PNG, PDF';
+}
+
+
+// ── Toggle AI Scanner visibility ─────────────────────────────
+function toggleScanner() {
+  const body     = document.getElementById('scannerBody');
+  const chevron  = document.getElementById('scannerChevron');
+  const isHidden = body.style.display === 'none';
+  body.style.display    = isHidden ? 'block' : 'none';
+  chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+
+// ── Compress image before upload (keeps under 3MB) ─────────
+async function compressImage(dataUrl, maxSizeKB = 800) {
+  return new Promise((resolve) => {
+    // If not an image or already small, return as-is
+    if (!dataUrl || !dataUrl.startsWith('data:image')) {
+      resolve(dataUrl); return;
+    }
+    const currentSizeKB = (dataUrl.length * 3/4) / 1024;
+    if (currentSizeKB <= maxSizeKB) {
+      resolve(dataUrl); return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+
+      // Scale down if too big
+      const maxDim = 1200;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim/width, maxDim/height);
+        width  = Math.floor(width  * ratio);
+        height = Math.floor(height * ratio);
+      }
+
+      canvas.width  = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Try quality 0.7 first
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      const compSizeKB  = (compressed.length * 3/4) / 1024;
+
+      if (compSizeKB > maxSizeKB) {
+        // Try lower quality
+        resolve(canvas.toDataURL('image/jpeg', 0.4));
+      } else {
+        resolve(compressed);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+loadSavedConfig();
+</script>
+
+<script>
+// ── PWA Install Prompt ────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'flex';
+});
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBanner').style.display = 'none';
+    });
+  }
+}
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').style.display = 'none';
+});
+</script>
+
+<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0D2B1A;color:#fff;padding:14px 20px;align-items:center;justify-content:space-between;z-index:998;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,0.3)">
+  <div>
+    <div style="font-weight:700;font-size:0.9rem">📲 Install GharSamridhi</div>
+    <div style="font-size:0.75rem;color:#81C784;margin-top:2px">Add to home screen for quick access</div>
+  </div>
+  <button onclick="installApp()" style="background:#2E7D52;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:700;cursor:pointer;white-space:nowrap">Install App</button>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#81C784;font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+</div>
+</body>
+</html>
