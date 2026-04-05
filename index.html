@@ -503,9 +503,16 @@
         <label>Date</label>
         <input type="date" class="form-control" id="entryDate">
       </div>
-      <div class="form-group">
+      <div class="form-group" style="position:relative">
         <label>Category</label>
-        <select class="form-control" id="entryCat"></select>
+        <input type="text" id="catSearch" class="form-control" placeholder="🔍 Search category..."
+          autocomplete="off"
+          oninput="filterCatDropdown()"
+          onfocus="showCatDropdown()"
+          onblur="setTimeout(hideCatDropdown,200)">
+        <input type="hidden" id="entryCat" value="rent">
+        <div id="catDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #2E7D52;border-radius:10px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:2px">
+        </div>
       </div>
       <div class="form-group">
         <label>Amount (₹)</label>
@@ -705,6 +712,85 @@ let CATEGORIES = [
   { id:'festivals',    name:'Festivals / Pooja',        icon:'🪔', color:'#FF6B35', bg:'#FFF3EE' },
   { id:'savings',      name:'Other Savings / RD/FD',    icon:'🏦', color:'#00897B', bg:'#E0F2F1' },
   { id:'other',        name:'Other / Miscellaneous',    icon:'📌', color:'#607D8B', bg:'#ECEFF1' },
+
+  // ── Tax & Government ──
+  { id:'income_tax',   name:'Income Tax Payment',       icon:'🏛️', color:'#1565C0', bg:'#E3F2FD' },
+  { id:'gst',          name:'GST / Tax Filing',         icon:'📑', color:'#283593', bg:'#E8EAF6' },
+  { id:'property_tax', name:'Property Tax',             icon:'🏠', color:'#4527A0', bg:'#EDE7F6' },
+  { id:'vehicle_tax',  name:'Vehicle Tax / RTO',        icon:'🚗', color:'#6A1B9A', bg:'#F3E5F5' },
+
+  // ── Vehicle Service & Maintenance ──
+  { id:'car_service2',  name:'Car Service / Repair',      icon:'🔧', color:'#E65100', bg:'#FBE9E7' },
+  { id:'bike_service',  name:'2 Wheeler Service / Repair', icon:'🏍️', color:'#BF360C', bg:'#FBE9E7' },
+  { id:'car_wash2',     name:'Car / Bike Wash & Cleaning', icon:'🚿', color:'#0277BD', bg:'#E1F5FE' },
+  { id:'car_tyre',      name:'Tyre / Battery / Spare Parts',icon:'🔩', color:'#546E7A', bg:'#ECEFF1' },
+  { id:'car_insurance2',name:'Vehicle Insurance Renewal',  icon:'🛡️', color:'#1B5E20', bg:'#E8F5E9' },
+  { id:'car_accessories',name:'Car / Bike Accessories',    icon:'🪛', color:'#4E342E', bg:'#EFEBE9' },
+  { id:'roadside',      name:'Roadside Assistance / Towing',icon:'🚛', color:'#37474F', bg:'#ECEFF1' },
+
+  // ── Home Appliance & Equipment Service ──
+  { id:'ac_service',    name:'AC Service / Repair',        icon:'❄️', color:'#0288D1', bg:'#E1F5FE' },
+  { id:'ro_service',    name:'RO / Water Purifier Service', icon:'💧', color:'#00838F', bg:'#E0F7FA' },
+  { id:'appliance_rep', name:'Appliance Repair (TV/Fridge/WM)',icon:'📺', color:'#455A64', bg:'#ECEFF1' },
+  { id:'generator',     name:'Generator / Inverter Service', icon:'⚡', color:'#F57F17', bg:'#FFF8E1' },
+  { id:'plumber',       name:'Plumber / Electrician',       icon:'🔌', color:'#795548', bg:'#EFEBE9' },
+  { id:'carpenter',     name:'Carpenter / Painter',         icon:'🪚', color:'#5D4037', bg:'#EFEBE9' },
+  { id:'tds',          name:'TDS / Advance Tax',        icon:'💼', color:'#0277BD', bg:'#E1F5FE' },
+
+  // ── Banking & Loans ──
+  { id:'home_loan',    name:'Home Loan EMI',            icon:'🏦', color:'#00695C', bg:'#E0F2F1' },
+  { id:'personal_loan',name:'Personal Loan EMI',        icon:'💳', color:'#558B2F', bg:'#F1F8E9' },
+  { id:'credit_card',  name:'Credit Card Bill',         icon:'💳', color:'#AD1457', bg:'#FCE4EC' },
+  { id:'bank_charges', name:'Bank Charges / Fees',      icon:'🏧', color:'#37474F', bg:'#ECEFF1' },
+  { id:'fd_rd',        name:'FD / RD Investment',       icon:'📊', color:'#00838F', bg:'#E0F7FA' },
+
+  // ── Kids & Education ──
+  { id:'tuition',      name:'Tuition / Coaching',       icon:'📚', color:'#1565C0', bg:'#E3F2FD' },
+  { id:'toys',         name:'Toys / Kids Activities',   icon:'🧸', color:'#F57F17', bg:'#FFF8E1' },
+  { id:'kids_clothes', name:'Kids Clothing',            icon:'👕', color:'#6A1B9A', bg:'#F3E5F5' },
+  { id:'exam_fees',    name:'Exam / Admission Fees',    icon:'🎓', color:'#1B5E20', bg:'#E8F5E9' },
+
+  // ── Health & Wellness ──
+  { id:'doctor',       name:'Doctor Consultation',      icon:'👨‍⚕️', color:'#C62828', bg:'#FFEBEE' },
+  { id:'hospital',     name:'Hospital / Lab Tests',     icon:'🏥', color:'#B71C1C', bg:'#FFEBEE' },
+  { id:'gym',          name:'Gym / Yoga / Fitness',     icon:'💪', color:'#2E7D52', bg:'#E8F5E9' },
+  { id:'dental',       name:'Dental Treatment',         icon:'🦷', color:'#00ACC1', bg:'#E0F7FA' },
+  { id:'optical',      name:'Spectacles / Eye Care',    icon:'👓', color:'#0288D1', bg:'#E1F5FE' },
+
+  // ── Home & Living ──
+  { id:'furniture',    name:'Furniture / Appliances',   icon:'🛋️', color:'#795548', bg:'#EFEBE9' },
+  { id:'cooking_gas',  name:'Cooking Gas / LPG',        icon:'🔥', color:'#E64A19', bg:'#FBE9E7' },
+  { id:'water_bill',   name:'Water Bill / Tanker',      icon:'💧', color:'#0288D1', bg:'#E1F5FE' },
+  { id:'maid',         name:'Maid / House Help',        icon:'🧹', color:'#5D4037', bg:'#EFEBE9' },
+  { id:'gardening',    name:'Gardening / Plants',       icon:'🌿', color:'#388E3C', bg:'#E8F5E9' },
+  { id:'security',     name:'Society / Security Fees',  icon:'🔐', color:'#455A64', bg:'#ECEFF1' },
+
+  // ── Travel & Transport ──
+  { id:'flight',       name:'Flight Tickets',           icon:'✈️', color:'#1565C0', bg:'#E3F2FD' },
+  { id:'train',        name:'Train / Bus Tickets',      icon:'🚂', color:'#4E342E', bg:'#EFEBE9' },
+  { id:'hotel',        name:'Hotel / Accommodation',    icon:'🏨', color:'#FF6F00', bg:'#FFF8E1' },
+  { id:'taxi',         name:'Taxi / Auto / Cab',        icon:'🚕', color:'#F9A825', bg:'#FFF8E1' },
+  { id:'toll',         name:'Toll / Parking',           icon:'🛣️', color:'#546E7A', bg:'#ECEFF1' },
+  { id:'vacation',     name:'Vacation / Holiday Trip',  icon:'🏖️', color:'#00838F', bg:'#E0F7FA' },
+
+  // ── Personal & Lifestyle ──
+  { id:'salon',        name:'Salon / Parlour / Grooming',icon:'💈', color:'#E91E63', bg:'#FCE4EC' },
+  { id:'gifts_self',   name:'Personal Gifts / Shopping',icon:'🛍️', color:'#7B1FA2', bg:'#F3E5F5' },
+  { id:'newspaper',    name:'Newspaper / Magazines',    icon:'📰', color:'#546E7A', bg:'#ECEFF1' },
+  { id:'donation',     name:'Donation / Charity / Temple',icon:'🙏', color:'#E65100', bg:'#FFF3E0' },
+  { id:'puja',         name:'Puja Items / Prasad',      icon:'🪔', color:'#F57F17', bg:'#FFF8E1' },
+  { id:'tobacco',      name:'Tobacco / Pan',            icon:'🚬', color:'#616161', bg:'#F5F5F5' },
+
+  // ── Digital & Subscriptions ──
+  { id:'ott',          name:'OTT / Streaming (Netflix etc)',icon:'📺', color:'#C62828', bg:'#FFEBEE' },
+  { id:'software',     name:'Software / App Subscription',icon:'💻', color:'#1565C0', bg:'#E3F2FD' },
+  { id:'online_shop',  name:'Online Shopping (Amazon etc)',icon:'📦', color:'#E65100', bg:'#FFF3E0' },
+  { id:'food_delivery',name:'Food Delivery (Swiggy/Zomato)',icon:'🍱', color:'#FF6F00', bg:'#FFF8E1' },
+
+  // ── Pet & Others ──
+  { id:'pet',          name:'Pet Care / Vet',           icon:'🐾', color:'#4E342E', bg:'#EFEBE9' },
+  { id:'legal',        name:'Legal / Advocate Fees',    icon:'⚖️', color:'#37474F', bg:'#ECEFF1' },
+  { id:'professional', name:'Professional / CA Fees',   icon:'📋', color:'#1A237E', bg:'#E8EAF6' },
 ];
 
 // Sort categories alphabetically by name (custom ones will be added after)
@@ -1067,7 +1153,11 @@ function buildRecentTable() {
       <td><strong>${fmt(e.amt)}</strong></td>
       <td style="color:var(--muted);font-size:0.8rem">${e.note || '—'}</td>
       <td><span class="who-pill">${e.addedBy || '—'}</span></td>
-      <td style="display:flex;gap:4px">${e.proofLink ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>' : ''}<button class="btn-del" title="Edit" onclick="openEdit('${e.id}')" style="color:#2E7D52">✏️</button><button class="btn-del" title="Delete" onclick="deleteEntry('${e.id}')">🗑</button></td>
+      <td style="display:flex;gap:4px">${e.proofLink
+  ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>'
+  : '<button class="btn-del" title="Attach Proof" onclick="openAttachProof(\''+e.id+'\')">📎</button>'}
+<button class="btn-del" title="Edit" onclick="openEdit('${e.id}')" style="color:#2E7D52">✏️</button>
+<button class="btn-del" title="Delete" onclick="deleteEntry('${e.id}')">🗑</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -1116,7 +1206,11 @@ function buildMonthlyTable() {
       <td><strong>${fmt(e.amt)}</strong></td>
       <td style="color:var(--muted);font-size:0.8rem">${e.note||'—'}</td>
       <td><span class="who-pill">${e.addedBy||'—'}</span></td>
-      <td style="display:flex;gap:4px">${e.proofLink ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>' : ''}<button class="btn-del" title="Edit" onclick="openEdit('${e.id}')" style="color:#2E7D52">✏️</button><button class="btn-del" title="Delete" onclick="deleteEntry('${e.id}')">🗑</button></td>
+      <td style="display:flex;gap:4px">${e.proofLink
+  ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>'
+  : '<button class="btn-del" title="Attach Proof" onclick="openAttachProof(\''+e.id+'\')">📎</button>'}
+<button class="btn-del" title="Edit" onclick="openEdit('${e.id}')" style="color:#2E7D52">✏️</button>
+<button class="btn-del" title="Delete" onclick="deleteEntry('${e.id}')">🗑</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -1796,6 +1890,165 @@ async function compressImage(dataUrl, maxSizeKB = 800) {
   });
 }
 
+
+// ══ SEARCHABLE CATEGORY SELECTOR ════════════════════════════
+let selectedCatId = 'rent';
+
+function buildCatDropdown() {
+  // Also update hidden select for edit modal if exists
+  const editSel = document.getElementById('editCat');
+  if (editSel) {
+    editSel.innerHTML = CATEGORIES.map(c =>
+      `<option value="${c.id}">${c.icon} ${c.name}</option>`
+    ).join('');
+  }
+  // Set default display
+  const first = CATEGORIES.find(c => c.id === selectedCatId) || CATEGORIES[0];
+  const inp = document.getElementById('catSearch');
+  if (inp) inp.value = first.icon + ' ' + first.name;
+  selectedCatId = first.id;
+  document.getElementById('entryCat').value = first.id;
+  renderCatList(CATEGORIES);
+}
+
+function renderCatList(cats) {
+  const dd = document.getElementById('catDropdown');
+  if (!dd) return;
+  dd.innerHTML = cats.map(c => `
+    <div onclick="selectCat('${c.id}','${c.icon} ${c.name.replace(/'/g,"")}')"
+      style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #F0FFF4;transition:background 0.1s"
+      onmouseover="this.style.background='#F0FFF4'" onmouseout="this.style.background='#fff'">
+      <span style="font-size:1.1rem">${c.icon}</span>
+      <span style="font-size:0.88rem;color:#0D2B1A;font-weight:500">${c.name}</span>
+    </div>
+  `).join('') || '<div style="padding:12px;color:#999;font-size:0.85rem;text-align:center">No categories found</div>';
+}
+
+function filterCatDropdown() {
+  const q = (document.getElementById('catSearch').value || '').toLowerCase();
+  const filtered = CATEGORIES.filter(c =>
+    c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
+  );
+  renderCatList(filtered);
+  showCatDropdown();
+}
+
+function selectCat(id, label) {
+  selectedCatId = id;
+  document.getElementById('entryCat').value = id;
+  document.getElementById('catSearch').value = label;
+  hideCatDropdown();
+}
+
+function showCatDropdown() {
+  const dd = document.getElementById('catDropdown');
+  if (dd) dd.style.display = 'block';
+}
+
+function hideCatDropdown() {
+  const dd = document.getElementById('catDropdown');
+  if (dd) dd.style.display = 'none';
+}
+
+function buildCatDropdown2() {
+  const sel = document.getElementById('editCat');
+  if (!sel) return;
+  sel.innerHTML = CATEGORIES.map(c =>
+    `<option value="${c.id}">${c.icon} ${c.name}</option>`
+  ).join('');
+}
+
+// ══ ATTACH PROOF TO EXISTING ENTRY ═══════════════════════════
+function openAttachProof(id) {
+  const entry = allExpenses.find(e => e.id.toString() === id.toString());
+  if (!entry) { toast('Entry not found — sync first'); return; }
+
+  document.getElementById('attachEntryId').value   = id;
+  document.getElementById('attachEntryInfo').textContent =
+    (entry.date || '') + ' · ' + (catInfo(entry.cat).icon || '') + ' ' +
+    (catInfo(entry.cat).name || '') + ' · ₹' + Number(entry.amt).toLocaleString('en-IN');
+  document.getElementById('attachProofPreview').style.display = 'none';
+  document.getElementById('attachProofInput').value = '';
+  attachProofB64  = '';
+  attachProofFileName = '';
+  attachProofMime = '';
+  document.getElementById('attachModal').style.display = 'flex';
+}
+
+function closeAttachModal() {
+  document.getElementById('attachModal').style.display = 'none';
+}
+
+let attachProofB64 = '', attachProofFileName = '', attachProofMime = '';
+
+function handleAttachFile(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    let dataUrl = e.target.result;
+    if (file.type.startsWith('image/')) {
+      dataUrl = await compressImage(dataUrl, 800);
+    }
+    attachProofB64      = dataUrl.split(',')[1];
+    attachProofFileName = file.name;
+    attachProofMime     = dataUrl.split(';')[0].replace('data:','');
+
+    const prev = document.getElementById('attachProofPreview');
+    prev.style.display = 'flex';
+    const thumb = document.getElementById('attachThumb');
+    if (file.type.startsWith('image/')) {
+      thumb.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`;
+    } else {
+      thumb.innerHTML = '📄';
+    }
+    document.getElementById('attachFileName').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitAttachProof() {
+  if (!attachProofB64) { toast('Please select a file first'); return; }
+  const id  = document.getElementById('attachEntryId').value;
+  const btn = document.getElementById('btnAttachSubmit');
+  btn.disabled = true; btn.textContent = '⏳ Uploading...';
+
+  try {
+    // Delete old entry, re-add with proof
+    const entry = allExpenses.find(e => e.id.toString() === id.toString());
+    if (!entry) throw new Error('Entry not found');
+
+    // Delete original
+    await apiPost({ action: 'deleteExpense', id });
+
+    // Re-add with proof
+    const res = await apiPost({
+      action:    'addExpense',
+      date:      fmtDate(entry.date),
+      cat:       entry.cat,
+      amt:       entry.amt,
+      note:      entry.note,
+      addedBy:   entry.addedBy,
+      proofData: attachProofB64,
+      proofName: attachProofFileName,
+      proofMime: attachProofMime
+    });
+    if (res.error) throw new Error(res.error);
+
+    // Update local state
+    allExpenses = allExpenses.filter(e => e.id.toString() !== id.toString());
+    allExpenses.push({ ...entry, id: res.id, proofLink: res.proofLink || '' });
+
+    closeAttachModal();
+    refresh();
+    toast('✅ Proof attached and saved to Google Drive!');
+  } catch(err) {
+    toast('❌ Failed: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '📎 Upload & Save';
+  }
+}
+
 loadSavedConfig();
 </script>
 
@@ -1870,5 +2123,46 @@ window.addEventListener('appinstalled', () => {
     <button onclick="document.getElementById('iosBanner').style.display='none'" style="background:rgba(255,255,255,0.1);border:none;color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:1rem;flex-shrink:0">✕</button>
   </div>
 </div>
+
+<!-- ══ ATTACH PROOF TO EXISTING ENTRY MODAL ══ -->
+<div id="attachModal" style="display:none;position:fixed;inset:0;background:rgba(13,43,26,0.75);z-index:600;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;padding:26px;max-width:460px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.3)">
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#0D2B1A;margin-bottom:6px">📎 Attach Proof to Entry</h3>
+    <div id="attachEntryInfo" style="font-size:0.8rem;color:#5A7A65;background:#F0FFF4;padding:8px 12px;border-radius:8px;margin-bottom:16px"></div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-size:0.75rem;font-weight:700;color:#2E7D52;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Select File</label>
+      <label for="attachProofInput"
+        style="background:#2E7D52;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px">
+        📷 Choose Bill / Receipt / PDF
+      </label>
+      <input type="file" id="attachProofInput" accept="image/*,application/pdf" style="display:none" onchange="handleAttachFile(this)">
+      <span style="font-size:0.72rem;color:#999;margin-left:10px">JPG · PNG · PDF</span>
+    </div>
+
+    <div id="attachProofPreview" style="display:none;background:#F0FFF4;border-radius:10px;padding:10px 14px;border:1.5px solid #81C784;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="attachThumb" style="width:48px;height:48px;border-radius:8px;border:1.5px solid #2E7D52;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;flex-shrink:0"></div>
+        <div>
+          <div id="attachFileName" style="font-size:0.85rem;font-weight:600;color:#2E7D52"></div>
+          <div style="font-size:0.72rem;color:#5A7A65;margin-top:2px">Ready to upload to Google Drive</div>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" id="attachEntryId">
+    <div style="display:flex;gap:10px">
+      <button id="btnAttachSubmit" onclick="submitAttachProof()"
+        style="flex:1;background:#2E7D52;color:#fff;border:none;padding:12px;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.92rem;cursor:pointer">
+        📎 Upload & Save
+      </button>
+      <button onclick="closeAttachModal()"
+        style="padding:12px 18px;background:#F0FFF4;color:#5A7A65;border:1.5px solid #D6EFE0;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
