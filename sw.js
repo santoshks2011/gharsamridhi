@@ -1,7 +1,7 @@
 // GharSamridhi Service Worker v1
 // Enables: offline support, installability, faster loading
 
-const CACHE_NAME = 'gharsamridhi-v1';
+const CACHE_NAME = 'gharsamridhi-v2'; // bump version = all devices auto-update
 const ASSETS = [
   './',
   './index.html',
@@ -20,6 +20,13 @@ self.addEventListener('install', (e) => {
     })
   );
   self.skipWaiting();
+
+// Listen for skip waiting message from app
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 });
 
 // Activate — clean old caches
