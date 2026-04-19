@@ -198,6 +198,13 @@
   /* ── TABLE ── */
   .table-wrap { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; }
+  .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  @media(max-width:600px) {
+    table { font-size:0.78rem; }
+    thead th { padding:8px 6px; font-size:0.65rem; }
+    tbody td { padding:8px 6px; }
+    .badge { font-size:0.65rem; padding:2px 6px; }
+  }
   thead th { text-align:left; font-size:0.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; padding:10px 14px; border-bottom:2px solid var(--border); background:var(--cream); }
   tbody tr { border-bottom:1px solid var(--border); transition:background 0.15s; }
   tbody tr:hover { background:#F1FAF4; }
@@ -259,7 +266,14 @@
   .activity-detail .meta { font-size:0.75rem; color:var(--muted); margin-top:2px; }
   .activity-amt { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--red); }
 
-  /* ── Mobile — all phones (up to 768px) ── */
+  /* ── Responsive base improvements ── */
+  .form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+  .add-panel { padding:18px; }
+  .chart-container { padding:18px; overflow:hidden; }
+  table { width:100%; table-layout:fixed; }
+  tbody td { overflow:hidden; text-overflow:ellipsis; }
+
+/* ── Mobile — all phones (up to 768px) ── */
   @media(max-width:768px) {
 
     /* Header — compact, no overflow */
@@ -519,38 +533,54 @@
         <input type="number" class="form-control" id="entryAmt" placeholder="0" min="0">
       </div>
     </div>
-    <div class="form-group" style="margin-top:12px">
-      <label>Note (optional)</label>
-      <input type="text" class="form-control" id="entryNote" placeholder="e.g. Big Bazaar, Petrol full tank, Reliance Fresh...">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+      <div class="form-group">
+        <label>Payment Mode</label>
+        <select class="form-control" id="entryPayMode">
+          <option value="">— Select Mode —</option>
+          <option value="UPI">📱 UPI (GPay/PhonePe/Paytm)</option>
+          <option value="Credit Card">💳 Credit Card</option>
+          <option value="Debit Card">💳 Debit Card</option>
+          <option value="Net Banking">🌐 Net Banking / NEFT</option>
+          <option value="RTGS/NEFT">🏦 RTGS / NEFT / IMPS</option>
+          <option value="Cash">💵 Cash</option>
+          <option value="Cheque">📄 Cheque</option>
+          <option value="EMI">🔄 EMI</option>
+          <option value="Auto Debit">⚡ Auto Debit / ECS</option>
+          <option value="Wallet">👛 Wallet / Prepaid</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Note (optional)</label>
+        <input type="text" class="form-control" id="entryNote" placeholder="e.g. Big Bazaar, Reliance Fresh...">
+      </div>
     </div>
 
-    <!-- ══ ATTACH BILL — always visible, no AI needed ══ -->
+        <!-- ══ MULTI-FILE ATTACH — always visible, no AI needed ══ -->
     <div style="background:#F0FFF4;border:2px dashed #2E7D52;border-radius:12px;padding:14px 16px;margin-top:14px">
-      <div style="font-size:0.78rem;font-weight:700;color:#2E7D52;margin-bottom:10px">
-        📎 ATTACH BILL COPY / PROOF
-        <span style="font-weight:400;color:#5A7A65;font-size:0.73rem"> — Optional, works without AI</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div style="font-size:0.78rem;font-weight:700;color:#2E7D52">
+          📎 ATTACH BILLS / PROOF
+          <span style="font-weight:400;color:#5A7A65;font-size:0.72rem"> — Optional · Multiple files (up to 5)</span>
+        </div>
+        <span style="font-size:0.7rem;color:#2E7D52;background:#D1FAE5;padding:3px 9px;border-radius:10px;font-weight:600">JPG · PNG · PDF</span>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <button type="button" onclick="document.getElementById('quickProofInput').click()"
-          style="background:#2E7D52;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap">
-          📷 Upload Bill Copy
+          style="background:#2E7D52;color:#fff;padding:9px 16px;border-radius:10px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap">
+          📷 Add Files
         </button>
-        <input type="file" id="quickProofInput" accept="image/*,application/pdf" style="position:absolute;left:-9999px;opacity:0" onchange="quickAttach(this)">
-        <div style="font-size:0.75rem;color:#5A7A65;line-height:1.5">
-          JPG · PNG · PDF · Any bill photo<br>
-          <span style="color:#2E7D52;font-size:0.7rem">Saved to your Google Drive automatically</span>
+        <input type="file" id="quickProofInput" accept="image/*,application/pdf"
+          multiple style="position:absolute;left:-9999px;opacity:0" onchange="quickAttach(this)">
+        <div style="font-size:0.73rem;color:#5A7A65;line-height:1.5">
+          Add each page as separate file or multi-page PDF<br>
+          <span style="color:#2E7D52;font-size:0.7rem">Saved to Google Drive automatically</span>
         </div>
       </div>
-
-      <div id="quickProofThumb" style="display:none;margin-top:12px;background:#fff;border-radius:10px;padding:10px 14px;border:1.5px solid #81C784">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div id="quickThumbImg" style="width:52px;height:52px;border-radius:8px;border:1.5px solid #2E7D52;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;overflow:hidden"></div>
-          <div style="flex:1;min-width:0">
-            <div id="quickThumbName" style="font-size:0.85rem;font-weight:700;color:#2E7D52;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-            <div style="font-size:0.72rem;color:#5A7A65;margin-top:2px">✅ Ready to save with this expense</div>
-          </div>
-          <button onclick="clearQuickProof()" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;cursor:pointer;font-size:0.75rem;padding:5px 10px;border-radius:7px;font-family:'DM Sans',sans-serif;font-weight:600">✕ Remove</button>
-        </div>
+      <!-- Multi-file preview -->
+      <div id="quickProofThumb" style="display:none;margin-top:12px">
+        <div id="attachedFilesGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        <div id="attachedCount" style="font-size:0.72rem;color:#2E7D52;font-weight:600;margin-top:6px"></div>
       </div>
     </div>
 
@@ -935,10 +965,13 @@ async function syncData() {
       apiCall({ action:'getExpenses' }),
       apiCall({ action:'getBudgets' })
     ]);
-    allExpenses = (expRes.expenses || []).map(e => ({
-      ...e,
-      proofLink: e.proofLink || ''
-    }));
+    allExpenses = (expRes.expenses || []).map(e => {
+      // Parse payment mode from note if stored as [Mode]
+      const payModeMatch = (e.note || '').match(/\[([^\]]+)\]$/);
+      const payMode = payModeMatch ? payModeMatch[1] : '';
+      const cleanNote = payMode ? (e.note || '').replace(/\s*\[[^\]]+\]$/, '') : (e.note || '');
+      return { ...e, proofLink: e.proofLink || '', payMode, note: cleanNote };
+    });
     budgets = bgtRes.budgets || {};
     setSyncStatus('ok', 'Synced at ' + new Date().toLocaleTimeString('en-IN'));
     refresh();
@@ -951,71 +984,89 @@ async function syncData() {
 }
 
 async function addEntry() {
-  const date = document.getElementById('entryDate').value;
-  const cat  = document.getElementById('entryCat').value;
-  const amt  = Number(document.getElementById('entryAmt').value);
-  const note = document.getElementById('entryNote').value.trim();
+  const date    = document.getElementById('entryDate').value;
+  const cat     = document.getElementById('entryCat').value;
+  const amt     = Number(document.getElementById('entryAmt').value);
+  const note    = document.getElementById('entryNote').value.trim();
+  const payMode = document.getElementById('entryPayMode')?.value || '';
 
-  if(!date) { toast('Please select a date'); return; }
-  if(!amt || amt <= 0) { toast('Enter a valid amount'); return; }
+  if (!date) { toast('Please select a date'); return; }
+  if (!amt || amt <= 0) { toast('Enter a valid amount'); return; }
 
   const btn = document.getElementById('btnAdd');
   if (btn.disabled) return; // prevent double submit
-  btn.disabled = true; btn.textContent = '⏳ Saving...';
+  btn.disabled = true;
+  btn.textContent = attachedFiles.length > 0 ? '⏳ Uploading ' + attachedFiles.length + ' file(s)...' : '⏳ Saving...';
 
   try {
-    // Step 1: Collect proof file if attached
-    const attachedDataUrl = quickProofBase64 || proofBase64 || '';
-    const attachedName    = quickProofName   || proofName   || '';
-    const attachedMime    = attachedDataUrl  ? (attachedDataUrl.split(';')[0].replace('data:','') || 'image/jpeg') : '';
-    // Compress image before sending (keeps under 1MB)
-    let finalDataUrl = attachedDataUrl;
-    if (attachedDataUrl && attachedDataUrl.startsWith('data:image')) {
-      btn.textContent = '⏳ Compressing image...';
-      finalDataUrl = await compressImage(attachedDataUrl, 800);
-    }
-    const cleanB64 = finalDataUrl ? finalDataUrl.split(',')[1] : '';
+    // Use first file for main proof (Apps Script handles one at a time)
+    // Additional files queued and uploaded sequentially
+    const firstFile = attachedFiles[0] || null;
 
-    // Show uploading status if proof attached
-    if (attachedDataUrl) {
-      btn.textContent = '⏳ Uploading proof to Drive...';
-    }
+    // Build full note with payment mode
+    const fullNote = [note, payMode ? '[' + payMode + ']' : ''].filter(Boolean).join(' ');
 
-    // Step 2: Save expense + proof in one call
+    // Step 2: Save expense + first proof in one call
     const res = await apiPost({
       action:    'addExpense',
       date, cat, amt,
-      note:      note,
+      note:      fullNote,
       addedBy:   USER_NAME,
-      proofData: cleanB64,
-      proofName: attachedName,
-      proofMime: attachedMime
+      proofData: firstFile ? firstFile.b64  : '',
+      proofName: firstFile ? firstFile.name : '',
+      proofMime: firstFile ? firstFile.mime : ''
     });
 
     if (res.error) throw new Error(res.error);
 
-    // Step 3: Clear all proof fields
+    // Step 3: Upload additional files sequentially (non-blocking)
+    if (attachedFiles.length > 1) {
+      btn.textContent = '⏳ Uploading extra files...';
+      for (let i = 1; i < attachedFiles.length; i++) {
+        const f = attachedFiles[i];
+        try {
+          await apiPost({
+            action:    'addExpense',
+            date, cat,
+            amt:       0,
+            note:      '[Extra Proof ' + (i+1) + '/' + attachedFiles.length + ' for ID:' + res.id + '] ' + f.name,
+            addedBy:   USER_NAME,
+            proofData: f.b64,
+            proofName: f.name,
+            proofMime: f.mime
+          });
+        } catch(e) { console.warn('Extra file upload failed:', f.name, e); }
+      }
+    }
+
+    // Step 4: Clear all fields
     clearReceipt();
     clearProof();
     clearQuickProof();
 
-    // Step 4: Update local state with proofLink from server
+    // Step 5: Update local state
+    const fullNote = [note, payMode ? '[' + payMode + ']' : ''].filter(Boolean).join(' ');
     const newEntry = {
       id:        res.id,
       date,
       month:     date.slice(0,7),
-      cat, amt, note,
+      cat, amt,
+      note:      fullNote,
       addedBy:   USER_NAME,
-      proofLink: res.proofLink || ''
+      proofLink: res.proofLink || '',
+      payMode
     };
     allExpenses.push(newEntry);
 
     document.getElementById('entryAmt').value  = '';
     document.getElementById('entryNote').value = '';
+    const pm = document.getElementById('entryPayMode');
+    if (pm) pm.value = '';
 
     refresh();
+    const fileCount = attachedFiles.length;
     const msg = res.proofLink
-      ? '✅ Expense + proof saved to Google Drive!'
+      ? '✅ Saved! ' + (fileCount > 1 ? fileCount + ' files' : '1 file') + ' uploaded to Drive'
       : '✅ Expense saved to Google Sheets!';
     toast(msg);
 
@@ -1151,7 +1202,10 @@ function buildRecentTable() {
       <td>${fmtDate(e.date)}</td>
       <td><span class="badge" style="background:${c.bg};color:${c.color}">${c.icon} ${c.name}</span></td>
       <td><strong>${fmt(e.amt)}</strong></td>
-      <td style="color:var(--muted);font-size:0.8rem">${e.note || '—'}</td>
+      <td style="color:var(--muted);font-size:0.8rem">
+        ${e.note || '—'}
+        ${e.payMode ? '<span style="display:inline-block;margin-left:5px;background:#E8F5E9;color:#2E7D52;font-size:0.65rem;padding:1px 6px;border-radius:8px;font-weight:600">' + e.payMode + '</span>' : ''}
+      </td>
       <td><span class="who-pill">${e.addedBy || '—'}</span></td>
       <td style="display:flex;gap:4px">${e.proofLink
   ? '<a href="' + e.proofLink + '" target="_blank" style="font-size:1rem;padding:3px 6px;border-radius:6px;color:#2E7D52;text-decoration:none;cursor:pointer" title="View Proof">📎</a>'
@@ -1784,110 +1838,96 @@ function clearProof() {
 }
 
 
-// ══ QUICK PROOF ATTACH (always visible on Add Expense) ═══════
-let quickProofBase64 = null;
-let quickProofName   = '';
+// ══ MULTI-FILE PROOF ATTACH ══════════════════════════════════
+let attachedFiles = []; // [{name, b64, mime}]
 
-function quickAttach(input) {
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    // Warn if file is too large (>4MB base64 ~ 3MB file)
-    if (dataUrl.length > 4 * 1024 * 1024) {
-      toast('⚠️ File is large — may take longer to upload');
-    }
-    quickProofBase64 = dataUrl;
-    quickProofName   = file.name;
+async function quickAttach(input) {
+  if (!input.files || !input.files.length) return;
+  const MAX_FILES = 5;
+  const files = Array.from(input.files).slice(0, MAX_FILES);
 
-    // Show thumb
-    const thumb = document.getElementById('quickThumbImg');
+  // Process each file
+  for (const file of files) {
+    if (attachedFiles.length >= MAX_FILES) break;
+    // Skip if already added
+    if (attachedFiles.find(f => f.name === file.name)) continue;
+
+    const dataUrl = await readFileAsync(file);
+    let finalUrl  = dataUrl;
+
+    // Compress images
     if (file.type.startsWith('image/')) {
-      thumb.innerHTML = '';
-      const img = document.createElement('img');
-      img.src = quickProofBase64;
-      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:4px';
-      thumb.appendChild(img);
-    } else {
-      thumb.innerHTML = '📄';
+      finalUrl = await compressImage(dataUrl, 600);
     }
 
-    document.getElementById('quickThumbName').textContent = file.name;
-    // quickProofName element optional — skip if not present
-    const qpt = document.getElementById('quickProofThumb');
-    if(qpt) qpt.style.display = 'block';
-    toast('📎 ' + file.name + ' attached!');
-  };
-  reader.readAsDataURL(file);
+    // Warn if file too large (>5MB)
+    if (finalUrl.length > 5 * 1024 * 1024) {
+      toast('⚠️ ' + file.name + ' is very large — may be slow');
+    }
+
+    attachedFiles.push({
+      name: file.name,
+      b64:  finalUrl.split(',')[1],
+      mime: finalUrl.split(';')[0].replace('data:','') || 'image/jpeg',
+      url:  finalUrl
+    });
+  }
+
+  input.value = ''; // reset so same file can be added again
+  renderAttachedFiles();
+  toast('📎 ' + attachedFiles.length + ' file(s) attached');
+}
+
+function readFileAsync(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload  = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function renderAttachedFiles() {
+  const grid  = document.getElementById('attachedFilesGrid');
+  const count = document.getElementById('attachedCount');
+  const thumb = document.getElementById('quickProofThumb');
+
+  if (!attachedFiles.length) {
+    if (thumb) thumb.style.display = 'none';
+    return;
+  }
+  if (thumb) thumb.style.display = 'block';
+
+  grid.innerHTML = attachedFiles.map((f, i) => `
+    <div style="position:relative;width:72px;flex-shrink:0">
+      <div style="width:72px;height:72px;border-radius:8px;border:1.5px solid #2E7D52;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden">
+        ${f.mime.startsWith('image/') ? `<img src="data:${f.mime};base64,${f.b64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">` : '📄'}
+      </div>
+      <div style="font-size:0.6rem;color:#2E7D52;text-align:center;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72px">${f.name.length > 10 ? f.name.slice(0,8)+'...' : f.name}</div>
+      <button onclick="removeFile(${i})"
+        style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:#DC2626;color:#fff;border:none;cursor:pointer;font-size:0.65rem;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+    </div>
+  `).join('');
+
+  count.textContent = attachedFiles.length + ' file(s) attached — will be saved to Google Drive';
+}
+
+function removeFile(idx) {
+  attachedFiles.splice(idx, 1);
+  renderAttachedFiles();
+  if (!attachedFiles.length) toast('All attachments removed');
 }
 
 function clearQuickProof() {
+  attachedFiles = [];
   const inp = document.getElementById('quickProofInput');
   if (inp) inp.value = '';
-  quickProofBase64 = null;
-  quickProofName   = '';
   const thumb = document.getElementById('quickProofThumb');
   if (thumb) thumb.style.display = 'none';
-  const nameEl = document.getElementById('quickProofName');
-  if (nameEl) nameEl.textContent = 'Optional — JPG, PNG, PDF';
-}
-
-
-// ── Toggle AI Scanner visibility ─────────────────────────────
-function toggleScanner() {
-  const body     = document.getElementById('scannerBody');
-  const chevron  = document.getElementById('scannerChevron');
-  const isHidden = body.style.display === 'none';
-  body.style.display    = isHidden ? 'block' : 'none';
-  chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
-
-// ── Compress image before upload (keeps under 3MB) ─────────
-async function compressImage(dataUrl, maxSizeKB = 800) {
-  return new Promise((resolve) => {
-    // If not an image or already small, return as-is
-    if (!dataUrl || !dataUrl.startsWith('data:image')) {
-      resolve(dataUrl); return;
-    }
-    const currentSizeKB = (dataUrl.length * 3/4) / 1024;
-    if (currentSizeKB <= maxSizeKB) {
-      resolve(dataUrl); return;
-    }
-
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let { width, height } = img;
-
-      // Scale down if too big
-      const maxDim = 1200;
-      if (width > maxDim || height > maxDim) {
-        const ratio = Math.min(maxDim/width, maxDim/height);
-        width  = Math.floor(width  * ratio);
-        height = Math.floor(height * ratio);
-      }
-
-      canvas.width  = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Try quality 0.7 first
-      const compressed = canvas.toDataURL('image/jpeg', 0.7);
-      const compSizeKB  = (compressed.length * 3/4) / 1024;
-
-      if (compSizeKB > maxSizeKB) {
-        // Try lower quality
-        resolve(canvas.toDataURL('image/jpeg', 0.4));
-      } else {
-        resolve(compressed);
-      }
-    };
-    img.onerror = () => resolve(dataUrl);
-    img.src = dataUrl;
-  });
+  const grid = document.getElementById('attachedFilesGrid');
+  if (grid) grid.innerHTML = '';
+  const count = document.getElementById('attachedCount');
+  if (count) count.textContent = '';
 }
 
 
